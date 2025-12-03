@@ -64,9 +64,10 @@ export default function NewUser() {
               </div>
             </div>
 
-            {/* --- Get Reference Code Card --- */}
+            {/* --- Vendor Registration Card --- */}
             <div className="border rounded-2xl p-6 hover:border-[#7E88E4] hover:bg-[#EAEDFB] hover:shadow-lg transition cursor-pointer">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center"
+              onClick ={()=> navigate("/vendorSignUp")}>
                 <div>
                   <h2 className="text-xl font-semibold text-[#0F172A]">
                     Start As Store
