@@ -1,0 +1,70 @@
+How they connect in normal flows — end-to-end
+A) Registration + OTP verification (common flow)
+
+POST /auth/register:
+
+Create vendor doc (unverified), generate OTP, send OTP.
+
+Return success ("OTP sent").
+
+POST /auth/verify-otp:
+
+Verify OTP, mark vendor as verified.
+
+Create accessToken = generateAccessToken(vendor).
+
+Create refreshToken = generateRefreshToken(vendor).
+
+Save refreshToken in DB (with vendor id).
+
+Set cookie Set-Cookie: refreshToken=...; HttpOnly; Secure; SameSite=Strict.
+
+Return { accessToken, vendor }.
+
+B) Login with password
+
+POST /auth/login:
+
+Validate email/password.
+
+If vendor.verified is false → ask to verify OTP first.
+
+Generate tokens as above, return access token, set refresh cookie.
+
+C) Access protected routes
+
+Client sends Authorization: Bearer <accessToken>.
+
+authMiddleware extracts token → verifyAccessToken.
+
+On success call getVendorFromToken or Vendor.findById(decoded.id).
+
+Attach vendor to req.vendor and next().
+
+D) Access token expired → Refresh
+
+Client receives 401 due to expired access token, or preemptively detects expiry.
+
+Client calls POST /auth/refresh (cookie includes httpOnly refreshToken automatically).
+
+Server gets cookie, calls verifyRefreshToken(refreshToken) → decode → check DB for token.
+
+If valid:
+
+generate new access token generateAccessToken(vendor).
+
+optionally rotate refresh token: create new refresh token, replace stored token, set new cookie.
+
+return new access token.
+
+Client uses new access token for subsequent requests.
+
+E) Logout / Revoke
+
+POST /auth/logout:
+
+Remove refresh token from DB (so it can’t be used).
+
+Clear cookie Set-Cookie: refreshToken=; Max-Age=0.
+
+Client deletes access token (if stored client-side).
