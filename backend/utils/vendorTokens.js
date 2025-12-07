@@ -11,7 +11,6 @@ export const generateAccessToken = (vendor) => {    //client attaches token in A
 export const generateRefreshToken = (vendor) =>{    //to be stored in httpOnly cookie in client side or in db for refreshing access tokens
     return jwt.sign({
         id: vendor._id,
-        email: vendor.email,
     }, process.env.REFRESH_TOKEN_SECRET, 
     { expiresIn: process.env.REFRESH_TOKEN_EXPIRY });
 };
