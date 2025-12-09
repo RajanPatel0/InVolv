@@ -1,10 +1,11 @@
-// import express from "express";
+import express from "express";
 
-// import { registerVendor, loginVendor } from "../../controllers/vendorControllers/authController.js";
+import { registerVendor, verifyOtp } from "../../controllers/vendorControllers/authController.js";
 
-// const router = express.Router();
+const router = express.Router();
 
-// router.post("/register", registerVendor);
+router.post("/register", registerVendor);
+router.post("/verify-Otp", verifyOtp)
 // router.post("/login", loginVendor);
 
-// export default router;
+export default router;
