@@ -19,7 +19,10 @@ const vendorSchema = new mongoose.Schema({
     password: { type: String, required: true, trim:true },
     address: { type: String, required: true, trim:true },
     category: { type: String, required:true, trim:true },
-    location: {   type: pointSchema, required: true, trim:true },
+    location: { type: pointSchema, required: true, trim:true },
+    isVerified: { type: Boolean, default: false},
+    otp: { type: String, default: null},  //hashed otp
+    otpExpiresAt: { type: Date, default: null},
     createdAt: { type: Date, default: Date.now }
 },{ timestamps: true });
 

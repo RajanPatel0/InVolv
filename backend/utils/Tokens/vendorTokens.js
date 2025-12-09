@@ -1,4 +1,4 @@
-import Vendor from "../models/StoreModels/vendorModel";
+import Vendor from "../../models/StoreModels/vendorModel.js";
 import jwt from "jsonwebtoken";
 
 export const generateAccessToken = (vendor) => {    //client attaches token in Authorization header on every protected API call.
@@ -11,7 +11,6 @@ export const generateAccessToken = (vendor) => {    //client attaches token in A
 export const generateRefreshToken = (vendor) =>{    //to be stored in httpOnly cookie in client side or in db for refreshing access tokens
     return jwt.sign({
         id: vendor._id,
-        email: vendor.email,
     }, process.env.REFRESH_TOKEN_SECRET, 
     { expiresIn: process.env.REFRESH_TOKEN_EXPIRY });
 };
@@ -40,3 +39,15 @@ export const getVendorFromToken = async (token) => { // used to get vendor detai
 
     return vendor;
 };
+
+export const isOtpCorrect = async(otp, vendor)=>{
+    return await bcrypt.compare(otp.tostring(), vendor.otp);
+}
+
+export const generateOtpToken= (vendor) =>{
+    return jwt.sign({
+        id: vendor._id,   
+    },process.env.OTP_TOKEN_SECRET,
+    {expiresIn: process.env.OTP_TOKEN_EXPIRY});
+};
+
