@@ -98,7 +98,7 @@ export const verifyOtp = async(req, res)=>{
             })
         };
 
-        const isOtpValid = await  isOtpCorrect(otp, vendor); //comparing otp(entered by stored otp in vendor db)
+        const isOtpValid = await  isOtpCorrect(otp, vendor); //comparing otp(entered one with stored otp in vendor db)
         if(!isOtpValid){
             return res.status(400).json({
                 success: false,

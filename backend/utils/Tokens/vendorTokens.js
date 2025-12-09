@@ -1,5 +1,6 @@
 import Vendor from "../../models/StoreModels/vendorModel.js";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
 export const generateAccessToken = (vendor) => {    //client attaches token in Authorization header on every protected API call.
     return jwt.sign({
@@ -41,7 +42,7 @@ export const getVendorFromToken = async (token) => { // used to get vendor detai
 };
 
 export const isOtpCorrect = async(otp, vendor)=>{
-    return await bcrypt.compare(otp.tostring(), vendor.otp);
+    return await bcrypt.compare(otp.toString(), vendor.otp);
 }
 
 export const generateOtpToken= (vendor) =>{
