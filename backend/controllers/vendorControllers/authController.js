@@ -1,16 +1,15 @@
 import jwt from "jsonwebtoken";
 import Vendor from "../../models/StoreModels/vendorModel.js";
 
-import { verifyRefreshToken, generateAccessToken, generateOtpToken, isOtpCorrect} from "../../utils/Tokens/vendorTokens.js";
+import { verifyRefreshToken, generateAccessToken, generateRefreshToken, generateOtpToken, isOtpCorrect} from "../../utils/Tokens/vendorTokens.js";
 import { sendOtpEmail } from "../../utils/OTPS/sendOtpEmail.js"
+import bcrypt from "bcryptjs";
 
 export const registerVendor= async(req,res)=>{
     try{
         const {storeName, email, phone, password, address, category, location} = req.body;
 
-        const exisitingVendor = await Vendor.findOne({
-            email
-        });
+        const exisitingVendor = await Vendor.findOne({ email });
 
         if(exisitingVendor){
             return res.status(400).json({
@@ -123,6 +122,80 @@ export const verifyOtp = async(req, res)=>{
             success: false,
             message: "Internal Server Error",
             err: err.message,
+        });
+    }
+};
+
+export const loginVendor = async(req, res)=>{
+    try{
+        const {email, password}= req.body;
+
+        if(!email || !password){
+            return res.status(400).json({
+                success: false,
+                message: "Email and Password are required",
+            })
+        };
+
+        const vendor = await Vendor.findOne({ email});
+
+        if(!vendor){
+            return res.status(404).json({
+                success: false,
+                message: "Email or Password is incorrect. Please register.",
+            });
+        };
+
+        if (!vendor.isVerified) {
+            return res.status(403).json({
+                success: false,
+                message: "Your email is not verified. Please verify before logging in.",
+            });
+        }
+
+        const isPasswordMatch = await bcrypt.compare(password, vendor.password);
+        if(!isPasswordMatch){
+            return res.status(401).json({
+                success: false,
+                message: "InCorrect Credentials",
+            });
+        }
+
+        const accessToken = generateAccessToken(vendor._id);   //generating access token
+        const refreshToken = generateRefreshToken(vendor._id); //generating refresh token
+
+        vendor.refreshToken = refreshToken;  //storing refresh token in db
+        await vendor.save({ validateBeforeSave: false });
+
+        const loggedInVendor = await Vendor.findById(vendor._id).select(
+            "-password -refreshToken -otp -otpExpiresAt"
+        );
+
+        const isProd = process.env.NODE_ENV === "production";
+        const options = {   //sending refresh token in httpOnly cookie
+        httpOnly: true,
+        secure: isProd, // secure cookies only in production
+        sameSite: isProd ? "None" : "Lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        };
+
+        return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json({
+            success: true,
+            message: "Vendor logged in successfully",           
+            accessToken,
+            vendor: loggedInVendor,
+        });
+
+    }catch(err){
+        console.log("Error logging in Vendor", err);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            err: err.message
         });
     }
 };

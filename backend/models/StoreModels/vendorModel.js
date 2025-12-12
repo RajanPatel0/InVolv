@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const pointSchema = new mongoose.Schema({
   type: {
@@ -25,6 +26,16 @@ const vendorSchema = new mongoose.Schema({
     otpExpiresAt: { type: Date, default: null},
     createdAt: { type: Date, default: Date.now }
 },{ timestamps: true });
+
+vendorSchema.pre('save', async function(next) {
+  if(this.isModified("password")) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  if (this.isModified("otp") && this.otp && !this.otp.startsWith("$2b$")) {
+    this.otp = await bcrypt.hash(this.otp.toString(), 10);
+  }
+  next;
+}); 
 
 const Vendor = mongoose.model("Vendor", vendorSchema);
 export default Vendor;
