@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import bcrypt from "bcryptjs";
 import otpVerificationTemplate from "../Templates/otpVerificationtemplate.js";
 
 export const sendOtpEmail= async(vendor)=>{
@@ -16,9 +17,9 @@ export const sendOtpEmail= async(vendor)=>{
 
         const otp = Math.floor(1000 + Math.random()*9000).toString(); //generating 4 digit otp
 
-        vendor.otp = otp; //assigning otp to vendor object in db
+        vendor.otp = await bcrypt.hash(otp, 10);
         vendor.otpCreatedAt = new Date(); //assigning otp creation time
-        vendor.otpExpiresAt = process.env.OTP_TOKEN_EXPIRY; //assigning expiry time
+        vendor.otpExpiresAt = Date.now() + 10 * 60 * 1000; //assigning expiry time
         await vendor.save(); //saving otp in db
 
         const mailOptions= {
