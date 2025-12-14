@@ -1,0 +1,7 @@
+User Side
+
+✔ Search any product
+✔ Shows closest stores with availability
+✔ Shows map path and walking/driving distance
+✔ Shows store pricing & stock
+✔ Option to pre-book
