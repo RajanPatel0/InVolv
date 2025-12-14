@@ -1,0 +1,22 @@
+Vendor Side
+
+✔ Vendor registers store
+✔ Pins store location on a map
+✔ Adds product catalog
+      POST /api/products
+      → authMiddleware
+      → multer middleware
+      → addProduct controller
+         Auth first → identify vendor
+         Multer → parse file
+         Controller → business logic
+** frontend send text , image -> multer runs before controller extract image (temperorly stores) and created req.files -> controller validate imputs && upload images to cloudinary (creates pdt)-> cloudinary gives urls after storing -> these urls with other (text)json data stored in mongodb(it stores only urls not images)
+   image: 
+      Files never live in JSON.
+      Multer handles files.
+      Cloudinary hosts files.
+      MongoDB stores URLs.
+
+✔ Updates stock & pricing
+✔ Views demand trends
+✔ Low-stock alerts
