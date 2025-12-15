@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema({
-    vendorId: {
+    vendorId: {     //it must be vendorId as same usage in controllers of product
         type: mongoose.Schema.Types.ObjectId,
         ref: "Vendor"
     },
