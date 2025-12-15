@@ -71,9 +71,10 @@ export const updateProduct = async(req, res)=>{
     try{
         const {pdtName, pdtDesc, price, category, stock, removeImages} = req.body;  //remove image extra button in update triggers from body as text of url of image to be deleted
 
+        const productId=req.params.id;
         const vendorId= req.vendor._id; //get it from auth middleware from route
 
-        const product = await Product.findOne({_id: req.params.id, vendorId});  //params give id of pdt from db
+        const product = await Product.findOne({_id: productId, vendorId});  //params give id of pdt from db
 
         if(!product){
             return res.status(404).json({ message: "Product Not found or Unauthorized" })
@@ -132,3 +133,45 @@ export const updateProduct = async(req, res)=>{
         })
     }
 };
+
+export const deleteProduct = async(req, res)=>{
+    try{
+        const productId = req.params.id;    //predefine Prevent accidental mutation / misuse
+        const vendorId= req.vendor._id;
+
+        //Find product + verify ownership in 1 query
+        const product = await Product.findOne({     //findOne() expects an OBJECT (filter) so single passing takes as string
+            _id: productId,
+            vendorId
+        });
+
+        if(!product){
+            return res.status(404).json({
+                success: false,
+                message: "Product Not found or Unauthorized"
+            });
+        };
+
+        for(const imgUrl of product.image){     //delete all images from cloudinary
+            const publicId = imgUrl.split("/").pop().split(".")[0];
+            try{
+                await handleDestroy(publicId); //full path needed just like as in creation
+            }catch(err){
+                console.log("Error deleting image from Cloudinary", err);
+            }
+        }
+
+        await Product.findByIdAndDelete(productId); //delete product from db
+
+        return res.status(200).json({
+            success: true,
+            message: "Product Deleted Successfully"
+        })
+    }catch(err){
+        console.log("Error Deleting product", err);
+        return res.status(500).json({
+            success: false,
+            message: "Error Deleting Product"
+        })
+    }
+}
