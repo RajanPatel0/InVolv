@@ -14,4 +14,4 @@ app.use("/api/vendor", vendorAuthRoutes);
 
 app.use("/api/store", vendorProductRoute);
 
-export default app;
+export default app
