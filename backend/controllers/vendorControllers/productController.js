@@ -67,6 +67,68 @@ export const addProduct = async(req, res)=>{
     }
 };
 
+export const getProduct = async(req, res)=>{
+    try{
+        const productId = req.params.id;
+        const vendorId= req.vendor._id; //get it from auth middleware from route
+        if(!vendorId){
+            return res.status(401).json({ 
+                success: false,
+                message: "Unauthorized vendor" });
+        }
+
+        const product = await Product.findOne({_id: productId, vendorId});  //params give id of pdt from db
+
+        if(!product){
+            return res.status(404).json({
+                success: false,
+                message: "Product Not found or Unauthorized" })
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Product Fetched Successfully",
+            product
+        });
+    }catch(err){
+        console.log("Error in getting Product", err),
+        res.status(500).json({
+            success: false,
+            message: "Error Getting Product"
+        })
+    }
+};
+
+export const getAllProduct = async(req, res)=>{
+    try{
+        const vendorId= req.vendor._id; //get it from auth middleware from route
+        if(!vendorId){
+            return res.status(401).json({ 
+                success: false,
+                message: "Unauthorized vendor" });
+        }
+
+        const products = await Product.find({ vendorId }).sort({ createdAt: -1 });  //params give id of pdt from db
+
+        const totalProducts = await Product.countDocuments();
+
+        res.status(200).json({
+            success: true,
+            message: "Products Fetched Successfully",
+            meta: {
+                total: totalProducts,
+            },
+            products    //also for empty one
+        });
+    }catch(err){
+        console.log("Error in getting Products", err),
+        res.status(500).json({
+            success: false,
+            message: "Error Getting Products"
+        })
+    }
+};
+
 export const updateProduct = async(req, res)=>{
     try{
         const {pdtName, pdtDesc, price, category, stock, removeImages} = req.body;  //remove image extra button in update triggers from body as text of url of image to be deleted
@@ -174,4 +236,4 @@ export const deleteProduct = async(req, res)=>{
             message: "Error Deleting Product"
         })
     }
-}
+};
