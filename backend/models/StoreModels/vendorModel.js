@@ -16,7 +16,7 @@ const pointSchema = new mongoose.Schema({
 const vendorSchema = new mongoose.Schema({
     storeName: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, trim:true },
-    phone: { type: String, required: true, unique: true, trim:true }, 
+    phone: { type: String, required: true, unique: true }, 
     password: { type: String, required: true, trim:true },
     address: { type: String, required: true, trim:true },
     category: { type: String, required:true, trim:true },
@@ -36,6 +36,8 @@ vendorSchema.pre('save', async function(next) {
   }
   next;
 }); 
+
+vendorSchema.index({ location: "2dsphere" });
 
 const Vendor = mongoose.model("Vendor", vendorSchema);
 export default Vendor;

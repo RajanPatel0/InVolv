@@ -7,11 +7,15 @@ app.use(express.urlencoded({extended : true}));
 
 //Importing Routes:
 import vendorAuthRoutes from "./routes/vendorRoutes/authRoute.js";
-import vendorProductRoute from "./routes/vendorRoutes/productRoute.js"
+import vendorProductRoute from "./routes/vendorRoutes/productRoute.js";
 
-//using routes:
+import userAuthRoutes from "./routes/userRoutes/userAuthRoute.js";
+
+app.use("/api/user", userAuthRoutes);
+
+//Vendor Routes
 app.use("/api/vendor", vendorAuthRoutes);
-
 app.use("/api/store", vendorProductRoute);
+
 
 export default app
