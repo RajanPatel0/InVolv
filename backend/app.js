@@ -10,8 +10,11 @@ import vendorAuthRoutes from "./routes/vendorRoutes/authRoute.js";
 import vendorProductRoute from "./routes/vendorRoutes/productRoute.js";
 
 import userAuthRoutes from "./routes/userRoutes/userAuthRoute.js";
+import searchRoute from "./routes/userRoutes/searchRoute.js"
 
 app.use("/api/user", userAuthRoutes);
+
+app.use("/api/search", searchRoute);
 
 //Vendor Routes
 app.use("/api/vendor", vendorAuthRoutes);
