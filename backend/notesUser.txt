@@ -1,7 +1,24 @@
 User Side
 
 ✔ Search any product
-✔ Shows closest stores with availability
-✔ Shows map path and walking/driving distance
-✔ Shows store pricing & stock
-✔ Option to pre-book
+    Shows closest stores with availability
+    Shows map path and walking/driving distance
+    Shows store pricing & stock
+    Option to pre-book
+
+
+User Search
+   ↓
+Search API
+   ↓
+Geo Query (Mongo)
+   ↓
+Product Filter
+   ↓
+Store List (sorted)
+   ↓
+Map + Route
+   ↓
+Search Log Saved
+   ↓
+Vendor Demand Dashboard
