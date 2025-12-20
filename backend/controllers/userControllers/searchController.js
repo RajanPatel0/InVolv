@@ -1,5 +1,7 @@
 import Vendor from "../../models/StoreModels/vendorModel.js";
 
+import SearchLog from "../../models/StoreModels/searchLog.js";
+
 export const searchProductNearby = async(req, res)=>{
     try{
         const {productName, lat, lng, radius=5000}= req.body;
@@ -19,7 +21,7 @@ export const searchProductNearby = async(req, res)=>{
                         coordinates: [Number(lng), Number(lat)],
                     },
                     distanceField: "distance",
-                    maxDistance: radius,
+                    maxDistance: radius,    //we'll make it dynamic later
                     spherical: true
                 }
             },
@@ -69,6 +71,15 @@ export const searchProductNearby = async(req, res)=>{
             count: vendors.length,
             data: vendors
         });
+
+        // await SearchLog.create({
+        //     productName,
+        //     userLocation: {
+        //         type: "Point",
+        //         coordinates: [lng, lat]
+        //     },
+        //     area: vendors.location
+        // });
     }catch(err){
         console.log("Error In Searching Product", err);
         return res.status(500).json({
@@ -77,4 +88,4 @@ export const searchProductNearby = async(req, res)=>{
             err: err.message
         });
     }
-}
+};
