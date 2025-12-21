@@ -29,7 +29,7 @@ export default function Navbar() {
 
           {/* Login Button */}
           <Link
-            to="/login"
+            to="/userSignIn"
             className="px-4 py-2 text-sm font-[500] border border-white rounded-lg hover:bg-white hover:text-[#000075] transition"
           >
             Login
@@ -61,7 +61,7 @@ export default function Navbar() {
           <Link to="/myinvolv" onClick={() => setOpen(false)}>My InVolv</Link>
 
           <Link
-            to="/login"
+            to="/userSignIn"
             className="px-3 py-2 text-[#000075] border border-white bg-white rounded-lg text-center"
             onClick={() => setOpen(false)}
           >
