@@ -1,17 +1,19 @@
 import { useState } from "react";
-import { Store, ShoppingCart, MapPin, Map, Lock, Eye, EyeOff } from "lucide-react";
+import { Store, ShoppingCart, MapPin, Map, Lock, Eye, EyeOff, Check } from "lucide-react";
 import { FaEnvelope, FaPhone } from "react-icons/fa";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { useNavigate } from "react-router-dom";
 
+import { registerVendor } from "../../../api/vendorApi/vendorApis.js";
+import { set } from "mongoose";
 
 const markerIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
   iconSize: [35, 35],
 });
 
-export default function VendorSignup() {
+const VendorSignUp=() => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -28,6 +30,7 @@ export default function VendorSignup() {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Validation functions
   const validateEmail = (email) =>
@@ -54,7 +57,8 @@ export default function VendorSignup() {
   const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
+    if (loading) return;
     setSubmitted(true);
 
     let newErrors = {};
@@ -71,8 +75,28 @@ export default function VendorSignup() {
 
     setErrors(newErrors);
 
-    if (Object.keys(newErrors).length === 0) {
-      console.log("Vendor Registered:", { ...form, coords });
+    if (Object.keys(newErrors).length !== 0) return;
+
+    try{
+      setLoading(true);
+      const payload={
+        ...form,
+        location:{
+          type: "Point",
+          coordinates: [coords.lng, coords.lat],
+        },
+      };
+
+      const res= await registerVendor(payload);
+      console.log("Registration Success:", res);
+
+      localStorage.setItem("otpToken", res.otpToken);
+      navigate("/verify-otp");
+    }catch(err){
+      const message = err.response?.data?.message || "Something went wrong";
+      alert(message);
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -247,9 +271,12 @@ export default function VendorSignup() {
 
               <button
                 onClick={handleSubmit}
-                className="w-full bg-[#000075] flex items-center justify-center gap-x-2 text-white py-3 rounded-lg font-semibold hover:bg-blue-700"
+                disabled={loading}
+                className={`w-full bg-[#000075] flex items-center justify-center gap-x-2 
+                  text-white py-3 rounded-lg font-semibold 
+                  ${loading ? "opacity-70 cursor-not-allowed" : "hover:bg-blue-700"}`}
               >
-                <Store className="h-5 w-5"/>Register Store
+                {loading ? "Registering..." : "Register Store"}
               </button>
 
             </div>
@@ -261,10 +288,10 @@ export default function VendorSignup() {
               Register Your Store On InVolv
             </h3>
             <ul className="space-y-4 text-lg">
-              <li>✔ Get customers from your nearby area</li>
-              <li>✔ Update your catalog in real-time</li>
-              <li>✔ Show store on live map</li>
-              <li>✔ Manage stock & pricing easily</li>
+              <li className="flex"><Check className="mt-1 mr-1"/>  Get customers from your nearby area</li>
+              <li className="flex"><Check className="mt-1 mr-1"/> Update your catalog in real-time</li>
+              <li className="flex"><Check className="mt-1 mr-1"/> Show store on live map</li>
+              <li className="flex"><Check className="mt-1 mr-1"/> Manage stock & pricing easily</li>
             </ul>
           </div>
 
@@ -273,3 +300,5 @@ export default function VendorSignup() {
     </div>
   );
 }
+
+export default VendorSignUp;

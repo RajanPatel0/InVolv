@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { UserPlus, Lock, Eye, EyeOff } from "lucide-react";
+import { UserPlus, Store, Lock, Eye, EyeOff, Map, MapPin, ShoppingCart } from "lucide-react";
 import { FaUser, FaEnvelope, FaPhone } from "react-icons/fa";
 
 import { useNavigate } from "react-router-dom";
@@ -72,7 +72,7 @@ export default function UserSignUp() {
   return (
     <div className="min-h-screen bg-[#EDF2FF]">
       
-      {/* 🔵 NAVBAR BANNER */}
+      {/* NAVBAR BANNER */}
       <nav className="w-full bg-[#000075] text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           
@@ -217,22 +217,22 @@ export default function UserSignUp() {
 
             <ul className="space-y-4 text-lg">
               <li className="flex gap-3 items-start hover:translate-x-1 transition cursor-pointer">
-                <span className="text-2xl">📍</span>
+                <span className="text-2xl"><MapPin className="mt-3"/></span>
                 <span>Find the nearest store with your required product instantly.</span>
               </li>
 
               <li className="flex gap-3 items-start hover:translate-x-1 transition cursor-pointer">
-                <span className="text-2xl">🛒</span>
+                <span className="text-2xl"><ShoppingCart className="mt-3"/> </span>
                 <span>Check real-time stock availability & best pricing from vendors.</span>
               </li>
 
               <li className="flex gap-3 items-start hover:translate-x-1 transition cursor-pointer">
-                <span className="text-2xl">🗺️</span>
+                <span className="text-2xl"><Map className="mt-3"/></span>
                 <span>Get optimized route navigation from your location to the store.</span>
               </li>
 
               <li className="flex gap-3 items-start hover:translate-x-1 transition cursor-pointer">
-                <span className="text-2xl">📦</span>
+                <span className="text-2xl"><Store /></span>
                 <span>Vendors update inventory & prices in real time.</span>
               </li>
             </ul>
