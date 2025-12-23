@@ -7,6 +7,7 @@ import SignIn from "./components/involv_web_page/Authentication/Login/SignIn";
 import VendorSignUp from "./vendor/Authentication/SignUp/VendorSignUp";
 import VendorSignIn from "./vendor/Authentication/Login/vendorSignIn";
 import VerifyOtp from "./components/involv_web_page/Authentication/VerifyOtp/VerifyOtp";
+import Dashboard from "./vendor/Dashboard/Dashboard";
 
 const App = () => {
   return (
@@ -25,6 +26,10 @@ const App = () => {
 
         <Route path="/vendorSignUp" element={<VendorSignUp />} />
         <Route path="/vendorSignIn" element={<VendorSignIn />} />
+
+        <Route path="/vendor/dashboard" element={<Dashboard />} />
+
+        <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
     </>
   )

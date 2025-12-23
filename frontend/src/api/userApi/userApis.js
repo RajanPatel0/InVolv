@@ -1,27 +1,26 @@
 import api from "../axios.js";
 
-export const registerVendor  = async(vendorData)=>{
-    const response = await api.post("/vendor/register", vendorData);
-    return response.data;
+export const registerUser = async (userData) => {
+  const response = await api.post("/user/register", userData);
+  return response.data;
 };
 
 export const verifyOtp = async (otp, otpToken) => {
   const res = await api.post(
-    "/vendor/verify-Otp",
+    "/user/verify-otp",
     { otp },
     {
-      headers: {
+      headers: {    
         Authorization: `Bearer ${otpToken}`,
-      },
+        },
     }
   );
-
-  return res.data;
+    return res.data;
 };
 
-export const loginVendor = async(email, password)=>{
+export const loginUser = async (email, password) => {
   const res = await api.post(
-    "/vendor/login",
+    "/user/login",
     { email, password },
     {
       withCredentials: true,
