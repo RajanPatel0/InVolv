@@ -5,7 +5,7 @@ export const registerVendor  = async(vendorData)=>{
     return response.data;
 };
 
-export const verifyOtp = async (otp, otpToken) => {
+export const verifyVendorOtp = async (otp, otpToken) => {
   const res = await api.post(
     "/vendor/verify-Otp",
     { otp },

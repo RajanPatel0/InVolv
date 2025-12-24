@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Otp from '../VerifyOtp/Otp';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { ToastContainer } from "react-toastify";
 
-import { verifyOtp } from '../../../../api/vendorApi/vendorApis.js';
+import { verifyVendorOtp } from '../../../../api/vendorApi/vendorApis.js';
+import { verifyUserOtp } from '../../../../api/userApi/userApis.js';
 
 function VerifyOtp() {
   const [otp, setOtp] = useState('');
@@ -15,11 +16,20 @@ function VerifyOtp() {
   const [timer, setTimer] = useState(30); // in 30 seconds
   const [canResend, setCanResend] = useState(false);
 
+  const location = useLocation();
+  const role= location.state?.role || 'user';
+
   useEffect(() => {
-    const storedEmail = localStorage.getItem('registeredEmail');
-    setEmail(storedEmail || '');
-     startTimer();
-  }, []);
+    if (!role) {
+      toast.error("Invalid access. Please register again.");
+      navigate("/register");
+      return;
+    }
+
+    const storedEmail = localStorage.getItem("registeredEmail");
+    setEmail(storedEmail || "");
+    startTimer();
+  }, [role]);
 
    // Timer effect
   useEffect(() => {
@@ -58,14 +68,21 @@ function VerifyOtp() {
     setIsSubmitting(true);
 
     try {
-      const res = await verifyOtp(otp, otpToken);
+      let res;
 
-      toast.success(res.message || 'OTP verified successfully!');
+      if (role === "vendor") {
+        res = await verifyVendorOtp(otp, otpToken);
+        toast.success(res.message || "Vendor verified successfully!");
+        setTimeout(() => navigate("/vendorSignIn"), 1500);
+      }
 
-      setTimeout(() => {
-        localStorage.removeItem('otpToken');
-        navigate('/vendorSignIn');
-      }, 1500);
+      if (role === "user") {
+        res = await verifyUserOtp(otp, otpToken);
+        toast.success(res.message || "User verified successfully!");
+        setTimeout(() => navigate("/userSignIn"), 1500);
+      }
+
+      localStorage.removeItem("otpToken");
 
     } catch (error) {
       console.error("Verify OTP Error:", error);
