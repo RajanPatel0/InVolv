@@ -3,6 +3,7 @@ import { UserPlus, Store, Lock, Eye, EyeOff, Map, MapPin, ShoppingCart } from "l
 import { FaUser, FaEnvelope, FaPhone } from "react-icons/fa";
 
 import { useNavigate } from "react-router-dom";
+import { registerUser } from "../../../../api/userApi/userApis.js";
 
 export default function UserSignUp() {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export default function UserSignUp() {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Validation functions
   const validateEmail = (email) =>
@@ -45,28 +47,47 @@ export default function UserSignUp() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
+    if (loading) return;
     setSubmitted(true);
 
     let newErrors = {};
 
     if (!form.name.trim()) newErrors.name = "Name is required";
-
     if (!validateEmail(form.email))
       newErrors.email = "Enter a valid email address";
-
     if (!validatePhone(form.phone))
       newErrors.phone = "Phone number must be exactly 10 digits";
-
     if (!validatePassword(form.password))
       newErrors.password =
         "Password must be 8+ chars with uppercase, lowercase, number & symbol";
 
     setErrors(newErrors);
 
-    if (Object.keys(newErrors).length === 0) {
-      console.log("All good — Trigger OTP Verification Here");
-    }
+    if (Object.keys(newErrors).length !== 0) return;
+    
+    try{
+          setLoading(true);
+          const payload={
+            fullName: form.name,
+            email: form.email,
+            phone: form.phone,
+            password: form.password
+          };
+    
+          const res= await registerUser(payload);
+          console.log("Registration Success:", res);
+    
+          localStorage.setItem("otpToken", res.otpToken);
+          localStorage.setItem("registeredEmail", form.email);
+
+          navigate("/verify-otp", { state: { role: "user" } });
+        }catch(err){
+          const message = err.response?.data?.message || "Something went wrong";
+          alert(message);
+        }finally{
+          setLoading(false);
+        }
   };
 
   return (
@@ -194,14 +215,18 @@ export default function UserSignUp() {
 
               <button
                 onClick={handleSubmit}
-                className="w-full bg-[#000075] flex items-center justify-center gap-x-2 hover:bg-blue-700 transition text-white py-3 rounded-lg font-semibold shadow cursor-pointer"
+                disabled={loading}
+                className={`w-full bg-[#000075] flex items-center justify-center gap-x-2 
+                  text-white py-3 rounded-lg font-semibold 
+                  ${loading ? "opacity-70 cursor-not-allowed" : "hover:bg-blue-700"}`}
               >
-                Create Account
+                {loading ? "Creating..." : "Create Account"}
               </button>
 
               <p className="text-center text-gray-600 mt-4">
                 Already have an account?{" "}
-                <span className="text-blue-600 cursor-pointer hover:underline">
+                <span className="text-blue-600 cursor-pointer hover:underline"
+                onClick={()=>navigate("/userSignIn")}>
                   Sign in instead
                 </span>
               </p>

@@ -5,7 +5,7 @@ export const registerUser = async (userData) => {
   return response.data;
 };
 
-export const verifyOtp = async (otp, otpToken) => {
+export const verifyUserOtp = async (otp, otpToken) => {
   const res = await api.post(
     "/user/verify-otp",
     { otp },

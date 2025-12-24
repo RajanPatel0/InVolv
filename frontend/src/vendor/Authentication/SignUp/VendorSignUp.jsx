@@ -6,7 +6,6 @@ import L from "leaflet";
 import { useNavigate } from "react-router-dom";
 
 import { registerVendor } from "../../../api/vendorApi/vendorApis.js";
-import { set } from "mongoose";
 
 const markerIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
@@ -91,7 +90,7 @@ const VendorSignUp=() => {
       console.log("Registration Success:", res);
 
       localStorage.setItem("otpToken", res.otpToken);
-      navigate("/verify-otp");
+      navigate("/verify-otp", { state: { role: "vendor" } });
     }catch(err){
       const message = err.response?.data?.message || "Something went wrong";
       alert(message);
