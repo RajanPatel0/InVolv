@@ -247,7 +247,7 @@ function VerifyOtp() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`cursor-pointer lg:w-[362.2px] w-[250px] md:w-[280px] lg:h-[42.03px] bg-blue-600 text-white py-2 font-bold rounded-lg hover:bg-blue-700 text-[10px] md:text-[12px] flex justify-center items-center gap-2 lg:text-[12.23px] ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                className={`cursor-pointer lg:w-[362.2px] w-[250px] md:w-[280px] lg:h-[42.03px] bg-[#000075] text-white py-2 font-bold rounded-lg hover:bg-blue-700 text-[10px] md:text-[12px] flex justify-center items-center gap-2 lg:text-[12.23px] ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
               >
                 {isSubmitting ? 'Verifying...' : 'Verify'}

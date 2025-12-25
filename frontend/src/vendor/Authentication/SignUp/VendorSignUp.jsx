@@ -278,6 +278,14 @@ const VendorSignUp=() => {
                 {loading ? "Registering..." : "Register Store"}
               </button>
 
+              <p className="text-center text-gray-600 mt-4">
+                Already have an account?{" "}
+                <span className="text-blue-600 cursor-pointer hover:underline"
+                onClick={()=>navigate("/vendorSignIn")}>
+                  Sign in instead
+                </span>
+              </p>
+
             </div>
           </div>
 

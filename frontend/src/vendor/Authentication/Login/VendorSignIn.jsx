@@ -15,7 +15,7 @@ const VendorSignIn = () => {
   // remember me
   useEffect(() => {
     try {
-      const remembered = JSON.parse(localStorage.getItem("rememberedSubAdmin"));
+      const remembered = JSON.parse(localStorage.getItem("rememberedVendor"));
       if (remembered && remembered.email) {
         setdata((prev) => ({ ...prev, email: remembered.email, password: remembered.password || "", rememberMe: true }));
       }
@@ -49,7 +49,7 @@ const VendorSignIn = () => {
   };
 
   // const handleForgot = () => {
-    // navigate("/admin/subadmin-forgot-password");
+    // navigate("/vendor/forgot-password");
   // };
 
   const handleSignIn = async (e) => {
@@ -80,10 +80,7 @@ const VendorSignIn = () => {
         }, 1000);
 
     } catch (error) {
-      console.error(
-        "Vendor Login Error:",
-        error
-      );
+      console.error("Vendor Login Error:", error);
       toast.error(error.response?.data?.message || "Login failed")
     } finally {
       setLoading(false); // stop loading

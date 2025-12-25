@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { loginUser } from "../../../../api/userApi/userApis.js";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -11,8 +12,21 @@ const SignIn = () => {
     rememberMe: false,
   });
 
+  // Load remembered email on mount
+  useEffect(() => {
+    try {
+      const remembered = JSON.parse(localStorage.getItem("rememberedUser"));
+      if (remembered && remembered.email) {
+        setdata((prev) => ({ ...prev, email: remembered.email, password: remembered.password || "", rememberMe: true }));
+      }
+    } catch {
+      // ignore parse errors
+    }
+  }, []);
+
   const [showPassword, setShowpassword] = useState(false);
   const [loading, setLoading] = useState(false); // Loader state for sign-in button
+  const [isUser, setIsUser] = useState(true);
 
   const onChangeInputs = (e) => {
     const { name, type, value, checked } = e.target;
@@ -22,22 +36,6 @@ const SignIn = () => {
       setdata((prev) => ({ ...prev, [name]: value }));
     }
   };
-
-  // Load remembered email on mount
-  useEffect(() => {
-    try {
-      const remembered = JSON.parse(localStorage.getItem("rememberedAdmin"));
-      if (remembered && remembered.email) {
-        setdata((prev) => ({ ...prev, email: remembered.email, password: remembered.password || "", rememberMe: true }));
-      }
-    } catch {
-      // ignore parse errors
-    }
-  }, []);
-
-
-  const [isUser, setIsUser] = useState(true);
-
 
   const handleToggle = () => {
     const newValue = !isUser;
@@ -51,59 +49,40 @@ const SignIn = () => {
   };
 
 //   const handleForgot = () => {
-//     navigate("/admin/forgot-password");
+//     navigate("/user/forgot-password");
 //   };
 
-//   const handleSignIn = async (e) => {
-//     e.preventDefault();
-//     setLoading(true);
-//     try {
-//       const response = await fetch("/api/admin/loginAdmin", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({
-//           email: data.email,
-//           password: data.password,
-//         }),
-//       });
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-//       const result = await response.json();
+    try {
+      const res = await loginUser(data.email, data.password);
 
-//       if (result.success) {
-//         // Extract otpToken from data object (Admin response structure)
-//         const { otpToken, email, id } = result.data;
+      console.log("Login Response:", res.data);
+      toast.success(res.message || "Logged In Successfully!");
+      try {
+        if (data.rememberMe) {
+          localStorage.setItem("rememberedUser", JSON.stringify({ email, password: data.password }));
+        } else {
+          localStorage.removeItem("rememberedUser");
+        }
+      } catch {
+        // ignore storage errors
+      }   
+      
+      localStorage.setItem("user", JSON.stringify(res.user));
+      setTimeout(() => {
+        navigate("/vendor/dashboard");
+      }, 1000);
 
-//         localStorage.setItem("otpToken-admin", otpToken);
-//         localStorage.setItem("adminEmail", email);
-//         localStorage.setItem("adminId", id);
-//         // Persist remembered credentials if user opted in (email + password)
-//         try {
-//           if (data.rememberMe) {
-//             localStorage.setItem("rememberedAdmin", JSON.stringify({ email, password: data.password }));
-//           } else {
-//             localStorage.removeItem("rememberedAdmin");
-//           }
-//         } catch {
-//           // ignore storage errors
-//         }
-
-//         toast.success("OTP sent to your email!");
-//         setTimeout(() => navigate("/admin/otp-signin"), 1000);
-//       } else {
-//         toast.error(result.message || "Login failed");
-//       }
-//     } catch (error) {
-//       console.error(
-//         "❌ Error logging in Admin:",
-//         error
-//       );
-//       toast.error("Login failed");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+    } catch (error) {
+      console.error("Error logging in User:", error);
+      toast.error(error.response?.data?.message ||  "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen w-[100%] bg-white ">
@@ -184,7 +163,7 @@ const SignIn = () => {
             </p>
           </div>
           <div className="flex gap-2 pt-4 justify-center lg:justify-start lg:pl-6 lg:pt-8">
-            <form >
+            <form  onSubmit={handleSignIn}>
               <div className="flex flex-col gap-2 ">
                 <p className="text-[10px] font-bold text-start lg:text-[10.7px]">
                   Email address

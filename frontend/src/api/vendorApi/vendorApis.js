@@ -15,7 +15,6 @@ export const verifyVendorOtp = async (otp, otpToken) => {
       },
     }
   );
-
   return res.data;
 };
 

@@ -4,7 +4,7 @@ const userOtpTemplate = (user, otp) => {
       <p>Hi <strong>${user.fullName || "User"}</strong>,</p>
       <p>Greetings from InVolv!</p>
       <p>Thank you for registering with InVolv.</p>
-      <p>Your Password: <strong>${user.password.toString()}</strong></p>
+      <p>Make Sure To Remember Your Set Password</strong></p>
       <p>Please use the OTP below to verify your email address:</p>
 
       <div style="background-color: #f4f4f4; padding: 15px; text-align: center; border-radius: 5px; margin: 20px 0;">
