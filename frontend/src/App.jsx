@@ -5,7 +5,7 @@ import NewUser from "./components/involv_web_page/Authentication/SignUp/NewUser"
 import UserSignUp from "./components/involv_web_page/Authentication/SignUp/UserSignUp";
 import SignIn from "./components/involv_web_page/Authentication/Login/SignIn";
 import VendorSignUp from "./vendor/Authentication/SignUp/VendorSignUp";
-import VendorSignIn from "./vendor/Authentication/Login/vendorSignIn";
+import VendorSignIn from "./vendor/Authentication/Login/VendorSignIn";
 import VerifyOtp from "./components/involv_web_page/Authentication/VerifyOtp/VerifyOtp";
 import Dashboard from "./vendor/Dashboard/Dashboard";
 
