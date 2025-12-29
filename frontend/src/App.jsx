@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom"
+import { Navigate } from "react-router-dom";
 // import {ToastContainer} from "react-toastify";
 import Home from "./components/involv_web_page/Home/Home";
 import NewUser from "./components/involv_web_page/Authentication/SignUp/NewUser"
@@ -7,7 +8,10 @@ import SignIn from "./components/involv_web_page/Authentication/Login/SignIn";
 import VendorSignUp from "./vendor/Authentication/SignUp/VendorSignUp";
 import VendorSignIn from "./vendor/Authentication/Login/VendorSignIn";
 import VerifyOtp from "./components/involv_web_page/Authentication/VerifyOtp/VerifyOtp";
-import Dashboard from "./vendor/Dashboard/Dashboard";
+
+import Dashboard from "./vendor/Pages/Dashboard";
+import Upload from "./vendor/Pages/Upload";
+import Setting from "./vendor/Pages/Setting";
 
 import Sidebar from "./vendor/components/SideBar";
 import Topbar from "./vendor/components/Topbar";
@@ -32,9 +36,18 @@ const App = () => {
         <Route path="/vendorSignIn" element={<VendorSignIn />} />
 
 
-        <Route path="/vendor/sidebar" element={<Sidebar />} />
+        {/* <Route path="/vendor/sidebar" element={<Sidebar />} />
         <Route path="/vendor/topbar" element={<Topbar />} />
-        <Route path="/vendor/*" element={<VendorLayout />} />
+        <Route path="/vendor/*" element={<VendorLayout />} /> */}
+
+        {/* Vendor Module */}
+        <Route path="/vendor" element={<VendorLayout />}>
+          <Route index element={<Navigate to="dashboard" />} />
+
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="upload" element={<Upload />} />
+          <Route path="settings" element={<Setting />} />
+        </Route>
 
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>

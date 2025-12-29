@@ -30,7 +30,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       `}
     >
       {/* Logo + Toggle */}
-      <div className="flex items-center justify-between h-[90px] px-4 border-b">
+      <div className="flex items-center justify-between h-[80px] px-4 border-b">
         {!isCollapsed ? (
           <div
             className="flex items-center gap-2 cursor-pointer"
@@ -53,7 +53,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
 
         <button
           onClick={toggleSidebar}
-          className="p-1 rounded-lg bg-[#000075] text-white text-lg hover:bg-gray-200 hover:text-[#000075] transition"
+          className="p-1 rounded-lg bg-gray-400 text-white text-lg hover:bg-gray-200 hover:text-white transition"
         >
           {isCollapsed ? "›" : "‹"}
         </button>
