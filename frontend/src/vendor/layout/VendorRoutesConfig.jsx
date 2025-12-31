@@ -5,10 +5,14 @@ export const vendorRoutes = {
   },
   "/vendor/upload": {
     title: "Product Upload",
-    subtitle: "Manage products",
+    subtitle: "Add products",
   },
   "/vendor/settings": {
     title: "Settings",
     subtitle: "Customize profile",
   },
+  "vendor/products":{
+    title: "Products",
+    subtitle: "Manage products",
+  }
 };

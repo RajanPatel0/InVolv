@@ -12,7 +12,9 @@ import VerifyOtp from "./components/involv_web_page/Authentication/VerifyOtp/Ver
 import Dashboard from "./vendor/Pages/Dashboard";
 import Upload from "./vendor/Pages/Upload";
 import Setting from "./vendor/Pages/Setting";
+import Products from "./vendor/Pages/product/Products";
 
+import VendorProfile from "./vendor/Pages/VendorProfile";
 import Sidebar from "./vendor/components/SideBar";
 import Topbar from "./vendor/components/Topbar";
 import VendorLayout from "./vendor/layout/vendorLayout";
@@ -40,6 +42,8 @@ const App = () => {
         <Route path="/vendor/topbar" element={<Topbar />} />
         <Route path="/vendor/*" element={<VendorLayout />} /> */}
 
+        <Route path="/vendor/profile" element={<VendorProfile />} />
+
         {/* Vendor Module */}
         <Route path="/vendor" element={<VendorLayout />}>
           <Route index element={<Navigate to="dashboard" />} />
@@ -47,6 +51,7 @@ const App = () => {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="upload" element={<Upload />} />
           <Route path="settings" element={<Setting />} />
+          <Route path="products" element={<Products />} />
         </Route>
 
         <Route path="*" element={<div>404 Not Found</div>} />
