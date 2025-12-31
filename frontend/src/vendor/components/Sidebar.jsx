@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, UploadCloud, Settings } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, UploadCloud, Settings, ChevronLeft, ChevronRight } from "lucide-react";
 
 const navItems = [
   {
@@ -13,10 +13,16 @@ const navItems = [
     icon: <UploadCloud size={18} />,
   },
   {
+    name: "Products",
+    to: "/vendor/products",
+    icon: <ShoppingCart size={18} />,
+  },
+  { 
     name: "Settings",
     to: "/vendor/settings",
     icon: <Settings size={18} />,
   },
+
 ];
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
@@ -30,7 +36,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       `}
     >
       {/* Logo + Toggle */}
-      <div className="flex items-center justify-between h-[80px] px-4 border-b">
+      <div className="flex items-center justify-between h-[80px] px-4 border-b bg-[#000075]">
         {!isCollapsed ? (
           <div
             className="flex items-center gap-2 cursor-pointer"
@@ -38,7 +44,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
           >
             <img src="/logo.png" alt="InVolv" className="h-9" />
             <div className="leading-tight">
-              <h1 className="text-lg font-bold text-[#000075]">InVolv IN</h1>
+              <h1 className="text-lg font-bold text-white">InVolv IN</h1>
               <p className="text-sm font-semibold text-[#30BC69]">Vendor</p>
             </div>
           </div>
@@ -51,11 +57,14 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
           />
         )}
 
+        {/* 🔘 Circular Toggle */}
         <button
           onClick={toggleSidebar}
-          className="p-1 rounded-lg bg-gray-400 text-white text-lg hover:bg-gray-200 hover:text-white transition"
+          className="w-9 h-9 cursor-pointer flex items-center justify-center rounded-full 
+                     bg-gray-100 text-[#000075] hover:bg-[#000075] hover:text-white
+                     transition-all duration-200 shadow-sm"
         >
-          {isCollapsed ? "›" : "‹"}
+          {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
       </div>
 
@@ -76,7 +85,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
               `}
             >
               <span className="flex-shrink-0">{icon}</span>
-              {!isCollapsed && <span className="text-sm font-medium">{name}</span>}
+              {!isCollapsed && (
+                <span className="text-sm font-medium">{name}</span>
+              )}
             </Link>
           );
         })}
