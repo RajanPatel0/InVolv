@@ -28,3 +28,17 @@ export const loginVendor = async(email, password)=>{
   );
   return res.data;
 };
+
+export const addProduct= async(formData)=>{
+  const res=await api.post(
+    "/store/addProduct",
+    formData,
+    {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return res.data;
+};

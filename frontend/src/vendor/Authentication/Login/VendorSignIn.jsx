@@ -59,7 +59,7 @@ const VendorSignIn = () => {
     try {
       const res = await loginVendor(data.email, data.password);
 
-      console.log("Login Response:", res.data);
+      console.log("Login Response:", res);
       toast.success(res.message || "Logged in successfully!");
 
         // persist remembered credentials if requested (email + password)
