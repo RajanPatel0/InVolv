@@ -66,3 +66,13 @@ export const updateProduct = async (productId, formData) => {
   );
   return res.data;
 };
+
+export const deleteProduct = async (productId) => {
+  const res = await api.delete(
+    `/store/deleteProduct/${productId}`,
+    {
+      withCredentials: true,
+    }
+  );
+  return res.data;
+};
