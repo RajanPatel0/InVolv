@@ -42,3 +42,27 @@ export const addProduct= async(formData)=>{
   );
   return res.data;
 };
+
+export const getAllProducts = async()=>{
+  const res= await api.get(
+    "/store/products",
+    {
+      withCredentials: true,
+    }
+  )
+  return res.data;
+};
+
+export const updateProduct = async (productId, formData) => {
+  const res = await api.patch(
+    `/store/updateProduct/${productId}`,
+    formData,
+    {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return res.data;
+};

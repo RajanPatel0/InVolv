@@ -110,7 +110,7 @@ export const getAllProduct = async(req, res)=>{
 
         const products = await Product.find({ vendorId }).sort({ createdAt: -1 });  //params give id of pdt from db
 
-        const totalProducts = await Product.countDocuments();
+        const totalProducts = await Product.countDocuments({vendorId});
 
         res.status(200).json({
             success: true,
