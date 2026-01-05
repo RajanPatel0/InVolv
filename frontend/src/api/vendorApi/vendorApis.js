@@ -29,6 +29,16 @@ export const loginVendor = async(email, password)=>{
   return res.data;
 };
 
+export const getVendorProfile = async () => {
+  const res = await api.get(
+    "/vendor/profile",
+    {
+      withCredentials: true,
+    }
+  );
+  return res.data;
+};
+
 export const addProduct= async(formData)=>{
   const res=await api.post(
     "/store/addProduct",
