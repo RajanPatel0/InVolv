@@ -1,11 +1,48 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
 import { FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
+import { getVendorProfile } from "../../api/vendorApi/vendorApis.js";
+
 const Topbar = ({ title, subtitle }) => {
   const name = "Vendor Name";
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const [vendor, setVendor] = useState({
+    storeName: "",
+    email: "",
+  });
+
+  const fetchVendorProfile= async()=>{
+    try{
+      setLoading(true);
+      setError(null);
+      const res = await getVendorProfile();
+
+      if(res.success && res.vendor){
+        const vendorData = res.vendor;
+
+        setVendor({
+          storeName: vendorData.storeName || "",
+          email: vendorData.email || "",
+        });
+      }else{
+        setError("Failed to load vendor profile");
+      }
+    }catch(err){
+      console.log("Error fetching vendor profile:", err);
+      setError("An error occurred while fetching vendor profile");
+    }finally{
+      setLoading(false);
+    }
+  };
+
+  useEffect(()=>{
+    fetchVendorProfile();
+  }, []);
 
   return (
     <header className="w-full bg-white border-b border-gray-200">
@@ -73,10 +110,10 @@ const Topbar = ({ title, subtitle }) => {
           <div className="flex items-center gap-3 bg-[#EFF6FE] px-3 py-1.5 rounded-xl cursor-pointer">
             <div className="flex flex-col text-right">
               <span className="text-sm font-semibold text-[#2A2A2A]">
-                {name}
+                {vendor.storeName}
               </span>
               <span className="text-xs text-[#6F7277]">
-                vendor@email.com
+                {vendor.email}
               </span>
             </div>
 
