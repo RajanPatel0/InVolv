@@ -73,7 +73,7 @@ const SignIn = () => {
       
       localStorage.setItem("user", JSON.stringify(res.user));
       setTimeout(() => {
-        navigate("/vendor/dashboard");
+        navigate("/");
       }, 1000);
 
     } catch (error) {
