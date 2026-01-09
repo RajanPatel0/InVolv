@@ -14,7 +14,8 @@ const productSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 },{ timestamps: true });
 
-productSchema.index({ pdtName: 1 });    //Index Product Name
+productSchema.index({ vendorId: 1 });
+productSchema.index({ stock: 1 });
 
 const Product = mongoose.model("Product", productSchema);
 export default Product;

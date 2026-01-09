@@ -22,3 +22,17 @@ Map + Route
 Search Log Saved
    ↓
 Vendor Demand Dashboard
+
+“I need a product → show me nearest store → cheapest/fastest → route → done”
+{{Google Maps + Amazon search combined}}
+
+Documentation:
+
+1. User Auth:
+   Register -> Verify OTP -> Login
+   using jwt token and cookies
+
+2. Search Functionality (Product Search):
+   MongoDB Atlas Search Index Inplemented -> Like Nearest Vendor -> Having product 
+   Using Redis Cache
+   with cacheInvalidation for UpdateProduct and DeleteProduct Controllers for vendor portal crud

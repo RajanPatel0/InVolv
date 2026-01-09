@@ -2,6 +2,8 @@ import fs from "fs";
 import { handleUpload, handleDestroy } from "../../config/cloudinary.js";
 import Product from "../../models/StoreModels/productModel.js";
 
+import { invalidateSearchCache, invalidateTrendingCache } from "../../utils/cacheRedis/cacheinvalidation.js";
+
 export const addProduct = async(req, res)=>{
     try{
         const { pdtName, pdtDesc, price, category, stock } = req.body;
@@ -181,6 +183,8 @@ export const updateProduct = async(req, res)=>{
         }
 
         await product.save();
+        invalidateSearchCache().catch(() => {});
+        invalidateTrendingCache().catch(() => {});
         
         res.status(200).json({
             success: true,
@@ -224,6 +228,9 @@ export const deleteProduct = async(req, res)=>{
         }
 
         await Product.findByIdAndDelete(productId); //delete product from db
+        
+        invalidateSearchCache().catch(() => {});
+        invalidateTrendingCache().catch(() => {});
 
         return res.status(200).json({
             success: true,
