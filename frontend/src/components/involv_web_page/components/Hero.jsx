@@ -19,6 +19,12 @@ export default function Hero({ onSearch, onDetectLocation }) {
     return () => btn.removeEventListener("mousemove", handleMove);
   }, []);
 
+  const handleSearch = () => {
+    if (query.trim()) {
+      onSearch(query.trim());
+    }
+  };
+
   return (
     <section className="relative min-h-[80vh] w-full overflow-hidden bg-gradient-to-br from-[#020617] via-[#020617] to-[#064e3b] text-white">
 
@@ -48,6 +54,7 @@ export default function Hero({ onSearch, onDetectLocation }) {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               placeholder="Search products (Electronics, Households…)"
               className="w-full bg-transparent text-sm outline-none sm:text-base"
             />
@@ -55,7 +62,7 @@ export default function Hero({ onSearch, onDetectLocation }) {
 
           <button
             ref={btnRef}
-            onClick={() => onSearch(query)}
+            onClick={handleSearch}
             className="relative overflow-hidden rounded-xl bg-emerald-500 px-6 py-3 font-semibold shadow-xl transition hover:bg-emerald-600 active:scale-95 cursor-pointer"
             style={{
               backgroundImage:
