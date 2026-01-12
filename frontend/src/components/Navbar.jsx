@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Home, Search, BarChart} from "lucide-react";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="w-full bg-[#000075] text-white shadow-lg">
+    <nav className="w-full bg-white text-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
 
         {/* Logo + InVolv */}
@@ -16,21 +17,21 @@ export default function Navbar() {
             className="h-10 w-10 select-none"
           />
           <div className="flex flex-col items-start">
-            <p className="font-bold text-xl">InVolv</p>
-            <p className="text-sm font-[500]">Not So Far</p>
+            <p className="font-bold text-xl text-black">InVolv</p>
+            <p className="text-sm font-[500] text-black">Not So Far</p>
           </div>
         </div>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center text-sm font-[700] gap-8">
-          <Link to="/" className="hover:text-yellow-300 transition">Home</Link>
-          <Link to="/search" className="hover:text-yellow-300 transition">Search</Link>
-          <Link to="/myinvolv" className="hover:text-yellow-300 transition">My InVolv</Link>
+          <Link to="/" className="flex items-center gap-1 text-black hover:text-emerald-400 transition"><Home size={20} />Home</Link>
+          <Link to="/search" className="flex items-center gap-1 text-black hover:text-emerald-400 transition"><Search size={20} />Search</Link>
+          <Link to="/myinvolv" className="flex items-center gap-1 text-black hover:text-emerald-400 transition"><BarChart size={20} />My InVolv</Link>
 
           {/* Login Button */}
           <Link
             to="/userSignIn"
-            className="px-4 py-2 text-sm font-[500] border border-white rounded-lg hover:bg-white hover:text-[#000075] transition"
+            className="px-4 py-2 text-sm font-bold text-black border border-black rounded-lg hover:bg-black hover:text-emerald-400 transition"
           >
             Login
           </Link>
@@ -38,7 +39,7 @@ export default function Navbar() {
           {/* Register Button */}
           <Link
             to="/register"
-            className="px-4 py-2 text-sm font-[500] rounded-lg border text-[#000075] border-[#000075] bg-white hover:bg-[#000075] hover:text-white hover:border-white transition"
+            className="px-4 py-2 text-sm font-[500] rounded-lg border text-white border-[#000075] bg-black hover:bg-white hover:text-black hover:border-black transition"
           >
             Register
           </Link>
@@ -47,7 +48,7 @@ export default function Navbar() {
         {/* Mobile Menu Toggle */}
         <button
           onClick={() => setOpen(!open)}
-          className="md:hidden text-3xl"
+          className="md:hidden text-black text-3xl"
         >
           {open ? "✕" : "☰"}
         </button>
@@ -55,14 +56,14 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {open && (
-        <div className="md:hidden flex flex-col gap-4 bg-[#000075] px-4 pb-4 text-white font-[500]">
-          <Link to="/" onClick={() => setOpen(false)}>Home</Link>
-          <Link to="/search" onClick={() => setOpen(false)}>Search</Link>
-          <Link to="/myinvolv" onClick={() => setOpen(false)}>My InVolv</Link>
+        <div className="md:hidden flex flex-col gap-4 bg-white px-4 pb-4 text-white font-[500]">
+          <Link to="/" className="flex items-center text-black font-bold gap-1 hover:text-emerald-400 transition" onClick={() => setOpen(false)}><Home size={20} />Home</Link>
+          <Link to="/search" className="flex items-center gap-1 text-black font-bold hover:text-emerald-400 transition" onClick={() => setOpen(false)}><Search size={20} />Search</Link>
+          <Link to="/myinvolv" className="flex items-center gap-1 text-black font-bold hover:text-emerald-400 transition" onClick={() => setOpen(false)}><BarChart size={20} />My InVolv</Link>
 
           <Link
             to="/userSignIn"
-            className="px-3 py-2 text-[#000075] border border-white bg-white rounded-lg text-center"
+            className="px-3 py-2 text-emerald-400 border border-white bg-black font-bold rounded-lg text-center"
             onClick={() => setOpen(false)}
           >
             Login
@@ -70,7 +71,7 @@ export default function Navbar() {
 
           <Link
             to="/register"
-            className="px-3 py-2 border border-white rounded-lg bg-[#000075] text-center"
+            className="px-3 py-2 border border-black rounded-lg bg-white text-black font-bold text-center"
             onClick={() => setOpen(false)}
           >
             Register

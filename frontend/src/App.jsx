@@ -2,7 +2,8 @@ import { Routes, Route } from "react-router-dom"
 import { Navigate } from "react-router-dom";
 import {ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Home from "./components/involv_web_page/Home/Home";
+
+import Home from "./components/involv_web_page/pages/Home/Home";
 import NewUser from "./components/involv_web_page/Authentication/SignUp/NewUser"
 import UserSignUp from "./components/involv_web_page/Authentication/SignUp/UserSignUp";
 import SignIn from "./components/involv_web_page/Authentication/Login/SignIn";
@@ -38,11 +39,6 @@ const App = () => {
 
         <Route path="/vendorSignUp" element={<VendorSignUp />} />
         <Route path="/vendorSignIn" element={<VendorSignIn />} />
-
-
-        {/* <Route path="/vendor/sidebar" element={<Sidebar />} />
-        <Route path="/vendor/topbar" element={<Topbar />} />
-        <Route path="/vendor/*" element={<VendorLayout />} /> */}
 
         <Route path="/vendor/profile" element={<VendorProfile />} />
 
