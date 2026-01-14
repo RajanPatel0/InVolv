@@ -104,10 +104,13 @@ export const searchProductNearby = async (req, res) => {
 
     const finalResult = products
       .map(p => ({
+        productImage: p.image,
         productName: p.pdtName,
+        productCategory: p.category,
         price: p.price,
         stock: p.stock,
         storeName: p.vendor.storeName,
+        phone: p.vendor.phone,
         address: p.vendor.address,
         location: p.vendor.location,
         distance: distanceMap[p.vendor._id.toString()]

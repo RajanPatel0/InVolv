@@ -4,6 +4,7 @@ import {
   Navigation,
   Package,
   ChevronRight,
+  Ruler
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -23,6 +24,16 @@ export default function StoreCard({
 
   const isCompact = variant === "compact";
 
+  const formatDistance = (distanceInMeters) => {
+    if (distanceInMeters == null) return null;
+
+    if (distanceInMeters < 1000) {
+      return `${Math.round(distanceInMeters)} meters`;
+    }
+
+    return `${(distanceInMeters / 1000).toFixed(1)} km`;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -36,42 +47,60 @@ export default function StoreCard({
         ${isCompact ? "p-3" : "p-4"}
         `}
       >
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           {/* ICON */}
           <div
-            className={`flex-shrink-0 rounded-xl bg-slate-900 flex items-center justify-center
-            ${isCompact ? "h-14 w-14" : "h-20 w-20"}
-          `}
+            className={`relative overflow-hidden rounded-xl bg-slate-900
+              ${isCompact ? "h-14 w-14" : "h-20 w-20"}
+              self-start sm:self-auto`}
           >
-            <Package
-              className={`text-slate-400 ${
-                isCompact ? "h-6 w-6" : "h-8 w-8"
-              }`}
-            />
+            {store.image ? (
+              <img
+                src={store.image}
+                alt={store.product.name}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center">
+                <Package
+                  className={`text-slate-400 ${
+                    isCompact ? "h-6 w-6" : "h-8 w-8"
+                  }`}
+                />
+              </div>
+            )}
           </div>
+
 
           {/* CONTENT */}
           <div className="flex-1 min-w-0">
             {/* HEADER */}
-            <div className="flex items-start justify-between gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
               <div>
                 <h3
                   className={`truncate font-semibold text-white group-hover:text-emerald-300 transition
                   ${isCompact ? "text-sm" : "text-base"}
                 `}
                 >
-                  {store.storeName}
+                  {store.name}
                 </h3>
 
-                <span
-                  className={`mt-1 inline-block rounded-full border px-2 py-0.5 text-xs
-                  ${
-                    categoryColor[store.category] ||
-                    categoryColor.general
-                  }`}
-                >
-                  {store.category || "general"}
-                </span>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  <span className={`inline-block rounded-full border px-2 py-0.5 text-xs ${
+                    categoryColor[store.product.productCategory] || categoryColor.general
+                  }`}>
+                    {store.product.productCategory || "general"}
+                  </span>
+
+                  <span className="inline-block rounded-full border px-2 py-0.5 text-xs text-white">
+                    {store.address}
+                  </span>
+                </div>
+
               </div>
 
               {!isCompact && (
@@ -110,7 +139,7 @@ export default function StoreCard({
 
             {/* META (hide in compact) */}
             {!isCompact && (
-              <div className="mt-3 flex flex-wrap gap-4 text-xs text-white/90">
+              <div className="mt-3 flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs text-white/90">
                 {store.openingHours && (
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
@@ -121,6 +150,12 @@ export default function StoreCard({
                   <span className="flex items-center gap-1">
                     <Phone className="h-3 w-3" />
                     {store.phone}
+                  </span>
+                )}
+                {store.distance != null && (
+                  <span className="flex items-center gap-1">
+                    <Ruler className="h-3 w-3" />
+                    {formatDistance(store.distance)}
                   </span>
                 )}
               </div>

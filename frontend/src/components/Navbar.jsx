@@ -1,16 +1,20 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Home, Search, BarChart} from "lucide-react";
+import { Home, Search, List} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <nav className="w-full bg-white text-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
 
         {/* Logo + InVolv */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 cursor-pointer"
+          onClick={() => navigate("/")}
+        >
           <img
             src="/logo.png"
             alt="InVolv Logo"
@@ -26,12 +30,12 @@ export default function Navbar() {
         <div className="hidden md:flex items-center text-sm font-[700] gap-8">
           <Link to="/" className="flex items-center gap-1 text-black hover:text-emerald-400 transition"><Home size={20} />Home</Link>
           <Link to="/search" className="flex items-center gap-1 text-black hover:text-emerald-400 transition"><Search size={20} />Search</Link>
-          <Link to="/myinvolv" className="flex items-center gap-1 text-black hover:text-emerald-400 transition"><BarChart size={20} />My InVolv</Link>
+          <Link to="/myinvolv" className="flex items-center gap-1 text-black hover:text-emerald-400 transition"><List size={20} />My InVolv</Link>
 
           {/* Login Button */}
           <Link
             to="/userSignIn"
-            className="px-4 py-2 text-sm font-bold text-black border border-black rounded-lg hover:bg-black hover:text-emerald-400 transition"
+            className="px-4 py-2 text-sm font-bold text-slate-800 border border-black rounded-lg hover:bg-slate-800 hover:text-emerald-400 transition"
           >
             Login
           </Link>
@@ -39,7 +43,7 @@ export default function Navbar() {
           {/* Register Button */}
           <Link
             to="/register"
-            className="px-4 py-2 text-sm font-[500] rounded-lg border text-white border-[#000075] bg-black hover:bg-white hover:text-black hover:border-black transition"
+            className="px-4 py-2 text-sm font-[500] rounded-lg border text-white border-[#000075] bg-slate-800 hover:bg-white hover:text-slate-800 hover:border-black transition"
           >
             Register
           </Link>
