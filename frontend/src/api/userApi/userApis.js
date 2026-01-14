@@ -28,3 +28,18 @@ export const loginUser = async (email, password) => {
   );
   return res.data;
 };
+
+export const searchNearbyProducts = async ({
+    productName,
+    lat,
+    lng,
+    radius = 100000,
+  }) => {
+    const res = await api.post("/search/product", {
+      productName,
+      lat,
+      lng,
+      radius,
+    });
+    return res.data;
+};
