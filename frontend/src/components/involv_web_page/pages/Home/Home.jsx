@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Navbar from "../../../Navbar"
 import Hero from "../../components/Hero";
+
+import StoreCardSkeleton from "../../components/StoreCardSkeleton";
+import MapSkeleton from "../../components/MapSkeleton"
+
 import StoreCard from "../../components/search/StoreCard";
 import ResultsMap from "../../components/search/ResultsMap";
 import ViewToggle from "../../components/search/ViewToggle";
@@ -10,6 +14,7 @@ import { getUserLocation } from "../../../../utils/getUserLocation";
 import { normalizeSearchResults } from "../../../../utils/normalizeSearchResults";
 
 export default function Home() {
+  const cardRefs = useRef({});
   const [query, setQuery] = useState("");
   const [stores, setStores] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
@@ -19,11 +24,25 @@ export default function Home() {
   const [userLocation, setUserLocation] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (!selectedStore) return;
+
+    const el = cardRefs.current[selectedStore.id];
+    if (el) {
+      el.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
+      });
+    }
+  }, [selectedStore]);
+
+
   const handleDetectLocation = async () => {
     try {
       const loc = await getUserLocation();
       setUserLocation(loc);
-      return loc
+      return loc;
     } catch (e) {
       alert("Location access denied");
     }
@@ -78,8 +97,9 @@ export default function Home() {
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-2xl font-bold">
-                {stores.length} stores found
+                {loading ? "Searching nearby stores…" : `${stores.length} stores found`}
               </h2>
+
               <p className="text-slate-400">
                 Showing results for{" "}
                 <span className="text-emerald-400 font-medium">
@@ -113,22 +133,25 @@ export default function Home() {
                   }
                 `}
               >
-                {stores.map((store, i) => (
-                  <div
-                    key={store.id}
-                    className={`
-                      snap-start
-                      ${view === "split" ? "min-w-[85%] sm:min-w-[60%] lg:min-w-0" : ""}
-                    `}
-                  >
-                    <StoreCard
-                      store={store}
-                      index={i}
-                      variant={view === "list" ? "list" : "rich"}
-                      onSelect={setSelectedStore}
-                      onNavigate={setSelectedStore}
-                    />
-                  </div>
+                {loading
+                  ? Array.from({ length: 5 }).map((_, i) => (
+                      <StoreCardSkeleton key={i} />
+                    ))
+                  : stores.map((store, i) => (
+                      <div
+                        key={store.id}
+                        ref={(el) => (cardRefs.current[store.id] = el)}
+                        className={`snap-start ${view === "split" ? "min-w-[85%] sm:min-w-[60%] lg:min-w-0" : ""}`}
+                      >
+                        <StoreCard
+                          store={store}
+                          index={i}
+                          variant={view === "list" ? "list" : "rich"}
+                          onSelect={setSelectedStore}
+                          onNavigate={setSelectedStore}
+                          isSelected={selectedStore?.id === store.id}
+                        />
+                      </div>
                 ))}
               </div>
             )}
@@ -138,15 +161,20 @@ export default function Home() {
             {(view === "map" || view === "split") && (
               <div className={`h-[650px] lg:w-[53vw] sticky top-6 right-0 left-10 lg:ml-8 rounded-2xl border border-slate-200 shadow-lg
               ${view === "map" ? "lg:w-full" : ""}`}>
-                <ResultsMap
-                  stores={stores}
-                  userLocation={userLocation}
-                  selectedStore={selectedStore}
-                  onSelect={setSelectedStore}
-                  onNavigate={setSelectedStore}
-                />
+                {loading ? (
+                  <MapSkeleton />
+                ) : (
+                  <ResultsMap
+                    stores={stores}
+                    userLocation={userLocation}
+                    selectedStore={selectedStore}
+                    onSelect={setSelectedStore}
+                    onNavigate={setSelectedStore}
+                  />
+                )}
               </div>
             )}
+
           </div>
         </section>
       )}

@@ -13,7 +13,8 @@ export default function StoreCard({
   onSelect,
   onNavigate,
   index = 0,
-  variant = "rich", // 👈 NEW
+  variant = "rich",
+  isSelected = false,
 }) {
   const categoryColor = {
     grocery: "bg-emerald-500/20 text-emerald-300 border-emerald-400/30",
@@ -42,9 +43,17 @@ export default function StoreCard({
     >
       <div
         onClick={() => onSelect(store)}
-        className={`group cursor-pointer rounded-2xl border bg-gradient-to-br from-[#064e3b] to-[#020617]
-        transition-all hover:border-emerald-700 hover:shadow-[0_0_0_1px_rgba(16,185,129,0.25)]
-        ${isCompact ? "p-3" : "p-4"}
+        className={`
+          group cursor-pointer rounded-2xl border bg-gradient-to-br
+          from-[#064e3b] to-[#020617]
+          transition-all duration-300
+          ${isCompact ? "p-3" : "p-4"}
+
+          ${
+            isSelected
+              ? "border-emerald-500 shadow-[0_0_0_8px_rgba(0,185,0,1)]"
+              : "border-slate-700 hover:border-emerald-700 hover:shadow-[0_0_0_1px_rgba(16,185,129,0.25)]"
+          }
         `}
       >
         <div className="flex flex-col sm:flex-row gap-4">
