@@ -4,7 +4,7 @@ import {
   Navigation,
   Package,
   ChevronRight,
-  Ruler
+  Ruler,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -27,11 +27,9 @@ export default function StoreCard({
 
   const formatDistance = (distanceInMeters) => {
     if (distanceInMeters == null) return null;
-
     if (distanceInMeters < 1000) {
       return `${Math.round(distanceInMeters)} meters`;
     }
-
     return `${(distanceInMeters / 1000).toFixed(1)} km`;
   };
 
@@ -40,22 +38,37 @@ export default function StoreCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: index * 0.04 }}
+      className="relative"
     >
       <div
         onClick={() => onSelect(store)}
         className={`
-          group cursor-pointer rounded-2xl border bg-gradient-to-br
-          from-[#064e3b] to-[#020617]
+          relative group cursor-pointer rounded-2xl border
+          bg-gradient-to-br from-[#064e3b] to-[#020617]
           transition-all duration-300
           ${isCompact ? "p-3" : "p-4"}
 
           ${
             isSelected
-              ? "border-emerald-500 shadow-[0_0_0_8px_rgba(0,185,0,1)]"
-              : "border-slate-700 hover:border-emerald-700 hover:shadow-[0_0_0_1px_rgba(16,185,129,0.25)]"
+              ? `
+                border-sky-400/70
+                outline outline-2 outline-sky-400/70 outline-offset-2
+                shadow-lg shadow-sky-500/20
+                scale-[0.985]
+              `
+              : `
+                border-slate-700
+                hover:border-sky-700/60
+                hover:shadow-md hover:shadow-sky-500/10
+              `
           }
         `}
       >
+        {/* LEFT ACCENT STRIP (ONLY WHEN SELECTED) */}
+        {isSelected && (
+          <div className="absolute inset-y-3 left-0 w-1 rounded-full bg-sky-400" />
+        )}
+
         <div className="flex flex-col sm:flex-row gap-4">
           {/* ICON */}
           <div
@@ -84,58 +97,56 @@ export default function StoreCard({
             )}
           </div>
 
-
           {/* CONTENT */}
           <div className="flex-1 min-w-0">
             {/* HEADER */}
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
               <div>
                 <h3
-                  className={`truncate font-semibold text-white group-hover:text-emerald-300 transition
-                  ${isCompact ? "text-sm" : "text-base"}
-                `}
+                  className={`truncate font-semibold text-white transition
+                  group-hover:text-sky-300
+                  ${isCompact ? "text-sm" : "text-base"}`}
                 >
                   {store.name}
                 </h3>
 
                 <div className="mt-1 flex flex-wrap gap-2">
-                  <span className={`inline-block rounded-full border px-2 py-0.5 text-xs ${
-                    categoryColor[store.product.productCategory] || categoryColor.general
-                  }`}>
+                  <span
+                    className={`inline-block rounded-full border px-2 py-0.5 text-xs ${
+                      categoryColor[store.product.productCategory] ||
+                      categoryColor.general
+                    }`}
+                  >
                     {store.product.productCategory || "general"}
                   </span>
 
-                  <span className="inline-block rounded-full border px-2 py-0.5 text-xs text-white">
+                  <span className="inline-block rounded-full border border-white/20 px-2 py-0.5 text-xs text-white/90">
                     {store.address}
                   </span>
                 </div>
-
               </div>
 
               {!isCompact && (
-                <ChevronRight className="h-5 w-5 text-slate-300 group-hover:text-emerald-400 transition" />
+                <ChevronRight className="h-5 w-5 text-slate-300 group-hover:text-sky-400 transition" />
               )}
             </div>
 
             {/* PRODUCT */}
             <div
-              className={`mt-2 rounded-lg bg-emerald-500
-              ${isCompact ? "p-2" : "p-3"}
-            `}
+              className={`mt-2 rounded-lg bg-emerald-500/90
+              ${isCompact ? "p-2" : "p-3"}`}
             >
               <div className="flex justify-between items-center">
                 <span
                   className={`font-medium text-white truncate
-                  ${isCompact ? "text-sm" : "text-base"}
-                `}
+                  ${isCompact ? "text-sm" : "text-base"}`}
                 >
                   {store.product.name}
                 </span>
 
                 <span
                   className={`font-bold text-white
-                  ${isCompact ? "text-sm" : "text-lg"}
-                `}
+                  ${isCompact ? "text-sm" : "text-lg"}`}
                 >
                   ₹{store.product.price}
                 </span>
@@ -146,7 +157,7 @@ export default function StoreCard({
               </p>
             </div>
 
-            {/* META (hide in compact) */}
+            {/* META */}
             {!isCompact && (
               <div className="mt-3 flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs text-white/90">
                 {store.openingHours && (
@@ -181,13 +192,13 @@ export default function StoreCard({
           className={`mt-3 w-full rounded-xl font-medium transition active:scale-[0.98]
           ${
             isCompact
-              ? "py-2 text-sm bg-white text-black hover:bg-emerald-500"
-              : "py-2.5 text-sm bg-white text-black hover:bg-emerald-600"
+              ? "py-2 text-sm bg-white text-black hover:bg-sky-400"
+              : "py-2.5 text-sm bg-white text-black hover:bg-sky-500"
           }`}
         >
           <span className="flex items-center justify-center gap-2">
             <Navigation className="h-4 w-4" />
-            Get Directions
+            View Store
           </span>
         </button>
       </div>

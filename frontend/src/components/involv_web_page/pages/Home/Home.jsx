@@ -13,7 +13,12 @@ import { searchNearbyProducts } from "../../../../api/userApi/userApis";
 import { getUserLocation } from "../../../../utils/getUserLocation";
 import { normalizeSearchResults } from "../../../../utils/normalizeSearchResults";
 
+import HowItWorks from "../../components/homesections/HowItWorks";
+import WhyInVolvExists from "../../components/homesections/WhyInVolvExists";
+import TrustAndCTA from "../../components/homesections/TrustAndCTA";
+
 export default function Home() {
+  const heroRef = useRef(null);
   const cardRefs = useRef({});
   const [query, setQuery] = useState("");
   const [stores, setStores] = useState([]);
@@ -48,7 +53,7 @@ export default function Home() {
     }
   };
 
-  const handleSearch = async(productName) => {
+  const handleSearch = async({ productName, radius}) => {
     console.log("SEARCH TRIGGERED:", productName);
     try{
       setLoading(true);
@@ -57,12 +62,14 @@ export default function Home() {
 
       //getting user location
       const loc = userLocation || (await handleDetectLocation());
+      if (!loc) return;
 
       //calling search api
       const res= await searchNearbyProducts({
         productName,
         lat: loc.lat,
         lng: loc.lng,
+        radius,
       });
 
       //normalizing data
@@ -86,9 +93,18 @@ export default function Home() {
     <div className="min-h-screen bg-white text-black">
       <Navbar />
       <Hero 
+        heroRef={heroRef}
         onSearch={handleSearch}
         onDetectLocation={handleDetectLocation}
       />
+
+      {!hasSearched && (
+        <>
+          <HowItWorks />
+          <WhyInVolvExists />
+          <TrustAndCTA heroRef={heroRef}/>
+        </>
+      )}
 
       {/* RESULTS */}
       {hasSearched && (
@@ -125,7 +141,7 @@ export default function Home() {
                     view === "split"
                       ? `
                         flex gap-4 overflow-x-auto snap-x snap-mandatory
-                        pb-2 -mx-4 px-4
+                        pb-6 px-2
                         lg:grid lg:gap-4 lg:overflow-y-auto lg:mx-0 lg:px-0
                         lg:max-h-[650px] lg:max-w-[33vw]
                       `
