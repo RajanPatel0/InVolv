@@ -1,15 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
   Popup,
-  Polyline,
   useMap,
 } from "react-leaflet";
 import L from "leaflet";
 import { Navigation } from "lucide-react";
 import "leaflet/dist/leaflet.css";
+
+import RouteLayer from "./RouteLayer";
 
 /* ---------------- ICONS ---------------- */
 
@@ -84,6 +85,27 @@ function MapController({ center, selectedStore }) {
   return null;
 }
 
+function ClosePopupOnMapAction() {
+  const map = useMap();
+
+  useEffect(() => {
+    const close = () => map.closePopup();
+
+    map.on("zoomstart", close);
+    map.on("dragstart", close);
+    map.on("click", close);
+
+    return () => {
+      map.off("zoomstart", close);
+      map.off("dragstart", close);
+      map.off("click", close);
+    };
+  }, [map]);
+
+  return null;
+}
+
+
 /* ---------------- MAIN COMPONENT ---------------- */
 
 export default function ResultsMap({
@@ -93,9 +115,29 @@ export default function ResultsMap({
   onSelect,
   onNavigate,
 }) {
-  const center = userLocation
-    ? [userLocation.lat, userLocation.lng]
-    : [28.6139, 77.2090]; // Delhi fallback
+  const [liveUserLocation, setLiveUserLocation] = useState(userLocation);
+
+  /* REALTIME USER TRACKING */
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        setLiveUserLocation({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        });
+      },
+      console.error,
+      { enableHighAccuracy: true, maximumAge: 5000 }
+    );
+
+    return () => navigator.geolocation.clearWatch(watchId);
+  }, []);
+
+  const center = liveUserLocation
+    ? [liveUserLocation.lat, liveUserLocation.lng]
+    : [28.6139, 77.2090];
 
   return (
     <div className="h-full w-full rounded-xl overflow-hidden shadow-lg">
@@ -113,9 +155,9 @@ export default function ResultsMap({
         <MapController center={center} selectedStore={selectedStore} />
 
         {/* USER LOCATION */}
-        {userLocation && (
+        {liveUserLocation && (
           <Marker
-            position={[userLocation.lat, userLocation.lng]}
+            position={[liveUserLocation.lat, liveUserLocation.lng]}
             icon={userIcon}
           >
             <Popup>
@@ -137,52 +179,70 @@ export default function ResultsMap({
                 click: () => onSelect?.(store),
               }}
             >
-              <Popup>
-                <div className="min-w-[200px]">
-                  <h3 className="font-semibold text-slate-900">
+              <Popup
+                autoClose
+                closeOnClick={false}
+                closeButton={false}
+                className="store-popup"
+              >
+                <div className="w-[220px]">
+                  {/* Store name */}
+                  <h3 className="text-sm font-semibold text-slate-900 truncate">
                     {store.name}
                   </h3>
-                  <p className="text-sm text-slate-500 mt-1">{store.address}</p>
 
+                  {/* Address */}
+                  <p className="mt-0.5 text-xs text-slate-500 truncate">
+                    {store.address}
+                  </p>
+
+                  {/* Product */}
                   {store.product && (
-                    <div className="mt-2 rounded-lg bg-emerald-50 p-2">
-                      <p className="text-sm font-medium text-emerald-700">
+                    <div className="mt-2 rounded-lg bg-slate-50 p-2 border border-slate-200">
+                      <p className="text-xs font-medium text-slate-700 truncate">
                         {store.product.name}
                       </p>
-                      <p className="text-lg font-bold text-emerald-600">
-                        ₹{store.product.price}
-                      </p>
+
+                      <div className="mt-1 flex items-center justify-between">
+                        <span className="text-sm font-bold text-emerald-600">
+                          ₹{store.product.price}
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          {store.product.stock} in stock
+                        </span>
+                      </div>
                     </div>
                   )}
 
+                  {/* CTA */}
                   <button
                     onClick={() => onNavigate?.(store)}
-                    className="mt-3 flex w-full items-center justify-center gap-2
-                      rounded-lg bg-emerald-500 py-2 text-sm font-medium text-white
-                      hover:bg-emerald-600 transition"
+                    className="mt-3 w-full rounded-lg bg-emerald-500 py-2
+                      text-xs font-medium text-white hover:bg-emerald-600 transition"
                   >
-                    <Navigation className="h-4 w-4" />
-                    Directions
+                    View Store
                   </button>
                 </div>
               </Popup>
+
             </Marker>
           );
         })}
 
         {/* ROUTE LINE */}
-        {userLocation && selectedStore && (
-          <Polyline
-            positions={[
-              [userLocation.lat, userLocation.lng],
-              [selectedStore.latitude, selectedStore.longitude],
-            ]}
-            color="#10B981"
-            weight={4}
-            opacity={0.8}
-            dashArray="10,8"
+        {liveUserLocation && selectedStore && (
+          <RouteLayer
+            userLocation={liveUserLocation}
+            store={{
+              location: {
+                lat: selectedStore.latitude,
+                lng: selectedStore.longitude,
+              },
+            }}
           />
         )}
+        <ClosePopupOnMapAction />
+
       </MapContainer>
     </div>
   );

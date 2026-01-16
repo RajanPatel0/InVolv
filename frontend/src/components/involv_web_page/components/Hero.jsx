@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Search, MapPin } from "lucide-react";
 
-export default function Hero({ onSearch, onDetectLocation }) {
+export default function Hero({ onSearch, onDetectLocation, heroRef }) {
   const btnRef = useRef(null);
   const [query, setQuery] = useState("");
+  const [radius, setRadius] = useState(5000); // default 5 km
 
   useEffect(() => {
     const btn = btnRef.current;
@@ -21,12 +22,25 @@ export default function Hero({ onSearch, onDetectLocation }) {
 
   const handleSearch = () => {
     if (query.trim()) {
-      onSearch(query.trim());
+      onSearch({
+        productName: query.trim(),
+        radius,
+      });
     }
   };
 
+  const RADIUS_OPTIONS = [
+    { label: "5 km", value: 5000 },
+    { label: "10 km", value: 10000 },
+    { label: "25 km", value: 25000 },
+    { label: "50 km", value: 50000 },
+    { label: "100 km", value: 100000 },
+    { label: "250 km", value: 250000 },
+    { label: "500 km", value: 500000 },
+  ];
+
   return (
-    <section className="relative min-h-[80vh] w-full overflow-hidden bg-gradient-to-br from-[#020617] via-[#020617] to-[#064e3b] text-white">
+    <section ref={heroRef} className="relative min-h-[80vh] w-full overflow-hidden bg-gradient-to-br from-[#020617] via-[#020617] to-[#064e3b] text-white">
 
       {/* background glow */}
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-emerald-500/20 blur-3xl" />
@@ -58,6 +72,22 @@ export default function Hero({ onSearch, onDetectLocation }) {
               placeholder="Search products (Electronics, Households…)"
               className="w-full bg-transparent text-sm outline-none sm:text-base"
             />
+          </div>
+
+          <div className="relative">
+            <select
+              value={radius}
+              onChange={(e) => setRadius(Number(e.target.value))}
+              className="h-full cursor-pointer rounded-xl bg-white/95 px-4 py-3
+                text-sm font-medium text-slate-700 shadow-lg outline-none
+                hover:bg-white sm:text-base"
+            >
+              {RADIUS_OPTIONS.map((r) => (
+                <option key={r.value} value={r.value}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <button
