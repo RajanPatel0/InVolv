@@ -16,6 +16,10 @@ import { normalizeSearchResults } from "../../../../utils/normalizeSearchResults
 import HowItWorks from "../../components/homesections/HowItWorks";
 import WhyInVolvExists from "../../components/homesections/WhyInVolvExists";
 import TrustAndCTA from "../../components/homesections/TrustAndCTA";
+import NearbyAlternatives from "../../components/homesections/NearByAlternatives";
+import AreaInsights from "../../components/homesections/AreaInsights";
+import SearchFallback from "../../components/homesections/SearchFallback";
+import SelectedStoreInsight from "../../components/homesections/SelectedStoreInsight";
 
 export default function Home() {
   const heroRef = useRef(null);
@@ -30,6 +34,21 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const saved = sessionStorage.getItem("involv-search-state");
+    if (!saved) return;
+
+    const parsed = JSON.parse(saved);
+
+    setQuery(parsed.query);
+    setStores(parsed.stores);
+    setSelectedStore(parsed.selectedStore);
+    setView(parsed.view || "split");
+    setUserLocation(parsed.userLocation);
+    setHasSearched(true);
+  }, []);
+
+
+  useEffect(() => {
     if (!selectedStore) return;
 
     const el = cardRefs.current[selectedStore.id];
@@ -41,6 +60,21 @@ export default function Home() {
       });
     }
   }, [selectedStore]);
+
+  useEffect(() => {
+    if (hasSearched) {
+      sessionStorage.setItem(
+        "involv-search-state",
+        JSON.stringify({
+          query,
+          stores,
+          selectedStore,
+          view,
+          userLocation,
+        })
+      );
+    }
+  }, [hasSearched, query, stores, selectedStore, view, userLocation]);
 
 
   const handleDetectLocation = async () => {
@@ -192,6 +226,18 @@ export default function Home() {
             )}
 
           </div>
+          {selectedStore && <SelectedStoreInsight store={selectedStore} />}
+
+          <NearbyAlternatives
+            stores={stores}
+            selectedStore={selectedStore}
+            onSelect={setSelectedStore}
+          />
+
+          <AreaInsights stores={stores} query={query} />
+
+          <SearchFallback heroRef={heroRef} />
+
         </section>
       )}
     </div>

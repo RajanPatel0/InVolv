@@ -9,6 +9,7 @@ import {
 import L from "leaflet";
 import { Navigation } from "lucide-react";
 import "leaflet/dist/leaflet.css";
+import { useNavigate } from "react-router-dom";
 
 import RouteLayer from "./RouteLayer";
 
@@ -116,6 +117,7 @@ export default function ResultsMap({
   onNavigate,
 }) {
   const [liveUserLocation, setLiveUserLocation] = useState(userLocation);
+  const navigate = useNavigate();
 
   /* REALTIME USER TRACKING */
   useEffect(() => {
@@ -216,7 +218,11 @@ export default function ResultsMap({
 
                   {/* CTA */}
                   <button
-                    onClick={() => onNavigate?.(store)}
+                    onClick={() => navigate("/store-details", {
+                      state: {
+                        fromSearch: true,
+                      },
+                    })}
                     className="mt-3 w-full rounded-lg bg-emerald-500 py-2
                       text-xs font-medium text-white hover:bg-emerald-600 transition"
                   >
