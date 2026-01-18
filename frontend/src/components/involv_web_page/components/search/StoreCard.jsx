@@ -7,6 +7,7 @@ import {
   Ruler,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 export default function StoreCard({
   store,
@@ -16,6 +17,8 @@ export default function StoreCard({
   variant = "rich",
   isSelected = false,
 }) {
+  const navigate = useNavigate();
+
   const categoryColor = {
     grocery: "bg-emerald-500/20 text-emerald-300 border-emerald-400/30",
     electronics: "bg-blue-500/20 text-blue-300 border-blue-400/30",
@@ -175,7 +178,7 @@ export default function StoreCard({
                 {store.distance != null && (
                   <span className="flex items-center gap-1">
                     <Ruler className="h-3 w-3" />
-                    {formatDistance(store.distance)}
+                    {formatDistance(store.distance)} Away
                   </span>
                 )}
               </div>
@@ -185,10 +188,11 @@ export default function StoreCard({
 
         {/* CTA */}
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onNavigate?.(store);
-          }}
+          onClick={() => navigate("/store-details", {
+            state: {
+              fromSearch: true,
+            },
+          })}
           className={`mt-3 w-full rounded-xl font-medium transition active:scale-[0.98]
           ${
             isCompact
@@ -196,7 +200,9 @@ export default function StoreCard({
               : "py-2.5 text-sm bg-white text-black hover:bg-sky-500"
           }`}
         >
-          <span className="flex items-center justify-center gap-2">
+          <span 
+            className="flex items-center justify-center gap-2
+            ">
             <Navigation className="h-4 w-4" />
             View Store
           </span>

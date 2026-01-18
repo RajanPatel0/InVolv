@@ -8,7 +8,7 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   return (
-    <nav className="w-full bg-white text-white shadow-lg sticky top-0 z-50">
+    <nav className="w-full bg-white text-white shadow-lg sticky top-0 z-[100]">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
 
         {/* Logo + InVolv */}
