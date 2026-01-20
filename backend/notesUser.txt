@@ -36,3 +36,32 @@ Documentation:
    MongoDB Atlas Search Index Inplemented -> Like Nearest Vendor -> Having product 
    Using Redis Cache
    with cacheInvalidation for UpdateProduct and DeleteProduct Controllers for vendor portal crud
+
+3. Zustand for managing client-side state:
+      why need ? Same data fetched multiple times
+                 page State dies on navigation
+                 currently there's no global truth 
+      State management = a single, predictable source of truth for your app’s client-side data
+
+   state =
+      search query
+      user location
+      nearby stores
+      selected store
+      intent (viewing, navigating, booking)
+      auth user/vendor
+
+      Redux	is Too heavy, boilerplate
+      Context API	is Re-renders entire tree
+      URL state only	is Limited, messy
+      ✅**Zustand** is Minimal, fast, scalable
+   
+   Axios file = “How to talk to backend”
+   Zustand store = “What data does the app currently believe is true”
+   --They work together
+
+   We added Zustand stores that:
+      Call API helpers
+      Store the response globally
+      Let ANY component read it
+      Persist important state if needed
