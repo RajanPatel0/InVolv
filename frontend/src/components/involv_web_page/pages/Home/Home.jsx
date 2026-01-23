@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import Navbar from "../../../Navbar"
 import Hero from "../../components/Hero";
 
@@ -9,9 +9,8 @@ import StoreCard from "../../components/search/StoreCard";
 import ResultsMap from "../../components/search/ResultsMap";
 import ViewToggle from "../../components/search/ViewToggle";
 
-import { searchNearbyProducts } from "../../../../api/userApi/userApis";
 import { getUserLocation } from "../../../../utils/getUserLocation";
-import { normalizeSearchResults } from "../../../../utils/normalizeSearchResults";
+import { useSearchStore } from "../../../../api/stores/searchStore";
 
 import HowItWorks from "../../components/homesections/HowItWorks";
 import WhyInVolvExists from "../../components/homesections/WhyInVolvExists";
@@ -24,30 +23,29 @@ import SelectedStoreInsight from "../../components/homesections/SelectedStoreIns
 export default function Home() {
   const heroRef = useRef(null);
   const cardRefs = useRef({});
-  const [query, setQuery] = useState("");
-  const [stores, setStores] = useState([]);
-  const [hasSearched, setHasSearched] = useState(false);
 
-  const [view, setView] = useState("split"); // list | split | map
-  const [selectedStore, setSelectedStore] = useState(null);
-  const [userLocation, setUserLocation] = useState(null);
-  const [loading, setLoading] = useState(false);
+  // Zustand store
+  const query = useSearchStore((state) => state.query);
+  const stores = useSearchStore((state) => state.stores);
+  const hasSearched = useSearchStore((state) => state.hasSearched);
+  const view = useSearchStore((state) => state.view);
+  const selectedStore = useSearchStore((state) => state.selectedStore);
+  const userLocation = useSearchStore((state) => state.userLocation);
+  const loading = useSearchStore((state) => state.loading);
 
+  // Actions from Zustand
+  const searchProducts = useSearchStore((state) => state.searchProducts);
+  const selectStore = useSearchStore((state) => state.selectStore);
+  const setView = useSearchStore((state) => state.setView);
+  const setUserLocation = useSearchStore((state) => state.setUserLocation);
+  const initializeFromStorage = useSearchStore((state) => state.initializeFromStorage);
+
+  // Initialize from sessionStorage on mount
   useEffect(() => {
-    const saved = sessionStorage.getItem("involv-search-state");
-    if (!saved) return;
-
-    const parsed = JSON.parse(saved);
-
-    setQuery(parsed.query);
-    setStores(parsed.stores);
-    setSelectedStore(parsed.selectedStore);
-    setView(parsed.view || "split");
-    setUserLocation(parsed.userLocation);
-    setHasSearched(true);
+    initializeFromStorage();
   }, []);
 
-
+  // Scroll to selected store when it changes
   useEffect(() => {
     if (!selectedStore) return;
 
@@ -61,22 +59,7 @@ export default function Home() {
     }
   }, [selectedStore]);
 
-  useEffect(() => {
-    if (hasSearched) {
-      sessionStorage.setItem(
-        "involv-search-state",
-        JSON.stringify({
-          query,
-          stores,
-          selectedStore,
-          view,
-          userLocation,
-        })
-      );
-    }
-  }, [hasSearched, query, stores, selectedStore, view, userLocation]);
-
-
+  // Detect user location and prompt
   const handleDetectLocation = async () => {
     try {
       const loc = await getUserLocation();
@@ -87,38 +70,24 @@ export default function Home() {
     }
   };
 
-  const handleSearch = async({ productName, radius}) => {
+  // Handle search from Hero component
+  const handleSearch = async ({ productName, radius }) => {
     console.log("SEARCH TRIGGERED:", productName);
-    try{
-      setLoading(true);
-      setQuery(productName);
-      setHasSearched(true);
-
-      //getting user location
+    try {
+      // Get user location if not already set
       const loc = userLocation || (await handleDetectLocation());
       if (!loc) return;
 
-      //calling search api
-      const res= await searchNearbyProducts({
+      // Call Zustand search action
+      await searchProducts({
         productName,
         lat: loc.lat,
         lng: loc.lng,
         radius,
       });
-
-      //normalizing data
-      const normalized = normalizeSearchResults(res.data);
-      setStores(normalized);
-
-      //auto select nearest store
-      if (normalized.length) {
-        setSelectedStore(normalized[0]);
-      }
-    } catch(err){
+    } catch (err) {
       console.log("Search Failed:", err);
       alert("Unable to Search Nearby Stores");
-    }finally {
-      setLoading(false);
     }
   };
 
@@ -197,8 +166,8 @@ export default function Home() {
                           store={store}
                           index={i}
                           variant={view === "list" ? "list" : "rich"}
-                          onSelect={setSelectedStore}
-                          onNavigate={setSelectedStore}
+                          onSelect={selectStore}
+                          onNavigate={selectStore}
                           isSelected={selectedStore?.id === store.id}
                         />
                       </div>
@@ -218,8 +187,8 @@ export default function Home() {
                     stores={stores}
                     userLocation={userLocation}
                     selectedStore={selectedStore}
-                    onSelect={setSelectedStore}
-                    onNavigate={setSelectedStore}
+                    onSelect={selectStore}
+                    onNavigate={selectStore}
                   />
                 )}
               </div>
@@ -231,7 +200,7 @@ export default function Home() {
           <NearbyAlternatives
             stores={stores}
             selectedStore={selectedStore}
-            onSelect={setSelectedStore}
+            onSelect={selectStore}
           />
 
           <AreaInsights stores={stores} query={query} />

@@ -65,3 +65,11 @@ Documentation:
       Store the response globally
       Let ANY component read it
       Persist important state if needed
+
+      *Key Changes-*
+      Aspect	         Before	After
+      useState Hooks	   7	      0
+      useEffect Hooks	3	      1
+      setState Calls	   6+	      1
+      Code Lines	      ~140	   ~90
+      Breaking Changes	N/A	   0
