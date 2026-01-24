@@ -12,6 +12,9 @@ export const useSearchStore = create((set, get) => ({
   loading: false,
   error: null,
   view: "split", // list | split | map
+  storeDetails: null,
+  detailsLoading: false,
+  detailsError: null,
 
   // Actions
   searchProducts: async ({ productName, lat, lng, radius }) => {
@@ -98,8 +101,18 @@ export const useSearchStore = create((set, get) => ({
       hasSearched: false,
       view: "split",
       userLocation: null,
+      storeDetails: null,
     });
     sessionStorage.removeItem("involv-search-state");
+  },
+
+  // Store Details Actions
+  setStoreDetails: (store) => {
+    set({ storeDetails: store });
+  },
+
+  clearStoreDetails: () => {
+    set({ storeDetails: null });
   },
 
   // Initialize from sessionStorage
