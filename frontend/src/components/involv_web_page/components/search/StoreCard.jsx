@@ -188,11 +188,14 @@ export default function StoreCard({
 
         {/* CTA */}
         <button
-          onClick={() => navigate("/store-details", {
-            state: {
-              fromSearch: true,
-            },
-          })}
+          onClick={() => {
+            onSelect(store);
+            navigate("/store-details", {
+              state: {
+                fromSearch: true,
+              },
+            });
+          }}
           className={`mt-3 w-full rounded-xl font-medium transition active:scale-[0.98]
           ${
             isCompact

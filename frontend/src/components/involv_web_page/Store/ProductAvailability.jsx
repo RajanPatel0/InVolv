@@ -3,6 +3,21 @@ import { CheckCircle2, Clock } from "lucide-react";
 export default function ProductAvailability({ product }) {
   if (!product) return null;
 
+  // Calculate minutes since update
+  const getUpdatedMins = () => {
+    if (!product.updatedAt) return "just now";
+    const now = new Date();
+    const updated = new Date(product.updatedAt);
+    const mins = Math.floor((now - updated) / (1000 * 60));
+    if (mins === 0) return "just now";
+    if (mins === 1) return "1 min ago";
+    if (mins < 60) return `${mins} mins ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours === 1) return "1 hour ago";
+    if (hours < 24) return `${hours} hours ago`;
+    return "today";
+  };
+
   return (
     <section className="max-w-7xl mx-auto px-4 mt-6">
       <div
@@ -22,7 +37,7 @@ export default function ProductAvailability({ product }) {
           </h3>
 
           <p className="mt-1 text-2xl font-bold text-neutral-900 dark:text-white">
-            ₹{product.price.toLocaleString("en-IN")}
+            ₹{product.price?.toLocaleString("en-IN") || "N/A"}
           </p>
 
           <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
@@ -34,7 +49,7 @@ export default function ProductAvailability({ product }) {
             {/* Updated Time with Tooltip */}
             <span className="relative group inline-flex items-center gap-1.5 text-neutral-500 dark:text-neutral-400">
               <Clock className="h-4 w-4" />
-              Updated {product.updatedMins} mins ago
+              Updated {getUpdatedMins()}
 
               {/* Tooltip */}
               <span
@@ -43,7 +58,7 @@ export default function ProductAvailability({ product }) {
                 text-xs text-white opacity-0 transition-opacity
                 group-hover:opacity-100"
               >
-                Vendor sync time
+                Stock updated by vendor
               </span>
             </span>
           </div>

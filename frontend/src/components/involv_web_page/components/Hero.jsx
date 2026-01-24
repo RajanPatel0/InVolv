@@ -5,6 +5,7 @@ export default function Hero({ onSearch, onDetectLocation, heroRef }) {
   const btnRef = useRef(null);
   const [query, setQuery] = useState("");
   const [radius, setRadius] = useState(5000); // default 5 km
+  const [loading , setLoading] = useState(false);
 
   useEffect(() => {
     const btn = btnRef.current;
@@ -20,12 +21,18 @@ export default function Hero({ onSearch, onDetectLocation, heroRef }) {
     return () => btn.removeEventListener("mousemove", handleMove);
   }, []);
 
-  const handleSearch = () => {
-    if (query.trim()) {
-      onSearch({
+  const handleSearch = async() => {
+    if(loading) return; // prevent multiple searches
+    setLoading(true);
+    try {
+      await onSearch({
         productName: query.trim(),
         radius,
       });
+    }catch (error) {
+      console.error("Search failed:", error);
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -93,13 +100,22 @@ export default function Hero({ onSearch, onDetectLocation, heroRef }) {
           <button
             ref={btnRef}
             onClick={handleSearch}
-            className="relative overflow-hidden rounded-xl bg-emerald-500 px-6 py-3 font-semibold shadow-xl transition hover:bg-emerald-600 active:scale-95 cursor-pointer"
+            disabled={loading}
+            className={`relative overflow-hidden rounded-xl bg-emerald-500 px-6 py-3 font-semibold shadow-xl transition 
+              ${loading ? "opacity-70 cursor-not-allowed" : "hover:bg-emerald-600 active:scale-95 cursor-pointer"}`}
             style={{
               backgroundImage:
                 "radial-gradient(600px circle at var(--x) var(--y), rgba(255,255,255,0.25), transparent 40%)",
             }}
           >
-            Search Nearby
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Searching...
+              </span>
+            ) : (
+              "Search NearBy"
+            )}
           </button>
         </div>
 
