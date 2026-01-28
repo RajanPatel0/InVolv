@@ -50,7 +50,7 @@ export default function StoreMiniMap({ userLoc, storeLoc, eta, distance }) {
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         
         {/* MAP */}
-        <div className="relative h-[260px] overflow-hidden rounded-2xl
+        <div className="relative h-[300px] overflow-hidden rounded-2xl
   border border-neutral-200 dark:border-neutral-800 isolate">
           <MapContainer
             center={[userLoc.lat, userLoc.lng]}
