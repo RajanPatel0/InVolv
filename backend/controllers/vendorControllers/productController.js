@@ -3,6 +3,7 @@ import { handleUpload, handleDestroy } from "../../config/cloudinary.js";
 import Product from "../../models/StoreModels/productModel.js";
 
 import { invalidateSearchCache, invalidateTrendingCache } from "../../utils/cacheRedis/cacheinvalidation.js";
+import { processProductIntents } from "../../utils/Notifications/intentProcessor.js";
 
 export const addProduct = async(req, res)=>{
     try{
@@ -183,6 +184,7 @@ export const updateProduct = async(req, res)=>{
         }
 
         await product.save();
+        await processProductIntents(product);  //check for any user intents to be triggered on update
         invalidateSearchCache().catch(() => {});
         invalidateTrendingCache().catch(() => {});
         
