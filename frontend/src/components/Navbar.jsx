@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Home, Search, List} from "lucide-react";
+import { Home, Search, Bell} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
@@ -30,7 +30,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center text-sm font-[700] gap-8">
           <Link to="/" className="flex items-center gap-1 text-black hover:text-emerald-400 transition"><Home size={20} />Home</Link>
           <Link to="/search" className="flex items-center gap-1 text-black hover:text-emerald-400 transition"><Search size={20} />Search</Link>
-          <Link to="/myinvolv" className="flex items-center gap-1 text-black hover:text-emerald-400 transition"><List size={20} />My InVolv</Link>
+          <Link to="/myinvolv" className="flex items-center gap-1 text-black hover:text-emerald-400 transition">My InVolv<Bell size={20} /></Link>
 
           {/* Login Button */}
           <Link
@@ -63,7 +63,7 @@ export default function Navbar() {
         <div className="md:hidden flex flex-col gap-4 bg-white px-4 pb-4 text-white font-[500]">
           <Link to="/" className="flex items-center text-black font-bold gap-1 hover:text-emerald-400 transition" onClick={() => setOpen(false)}><Home size={20} />Home</Link>
           <Link to="/search" className="flex items-center gap-1 text-black font-bold hover:text-emerald-400 transition" onClick={() => setOpen(false)}><Search size={20} />Search</Link>
-          <Link to="/myinvolv" className="flex items-center gap-1 text-black font-bold hover:text-emerald-400 transition" onClick={() => setOpen(false)}><List size={20} />My InVolv</Link>
+          <Link to="/myinvolv" className="flex items-center gap-1 text-black font-bold hover:text-emerald-400 transition" onClick={() => setOpen(false)}>My InVolv<Bell size={20} /></Link>
 
           <Link
             to="/userSignIn"

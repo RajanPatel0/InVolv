@@ -5,8 +5,8 @@ import { userAuthMiddleware} from "../../middlewares/userMiddlewares/userAuthMid
 const router = express.Router();
 
 //validtaion cuzz of userId used in controller
-router.post("/create-intent", userAuthMiddleware, createIntent)
-router.post("/cancel-intent/:id", userAuthMiddleware, cancelIntent);
-router.get("/my-intents", userAuthMiddleware, getMyIntents);
+router.post("/create", userAuthMiddleware, createIntent)
+router.post("/cancel/:id", userAuthMiddleware, cancelIntent);
+router.get("/intents", userAuthMiddleware, getMyIntents);
 
 export default router;

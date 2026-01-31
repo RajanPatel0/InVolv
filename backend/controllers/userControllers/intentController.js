@@ -1,4 +1,5 @@
 import UserIntent from "../../models/UserModels/userIntentModel.js";
+import Notification from "../../models/UserModels/notificationModel.js";
 import Product from "../../models/StoreModels/productModel.js";
 
 export const createIntent = async(req, res)=>{
@@ -24,7 +25,18 @@ export const createIntent = async(req, res)=>{
             productId,
             intentType,
             meta,
-        })
+        });
+
+        await Notification.create({ //for base case at starting on action button click 
+            userId,
+            title: "You're all set ✅",
+            message: intentType === "PRICE_DROP"    //equality check if alreasdy exists
+                ? "We’ll notify you when the price drops"
+                : intentType === "STOCK_CHANGE"
+                ? "We’ll notify you if stock changes"
+                : "Product reserved successfully",  //this is for first time default
+            link: `/store/${storeId}`,
+        });
 
         res.status(201).json({
             success: true,
@@ -67,8 +79,8 @@ export const cancelIntent = async(req, res)=>{
 
 export const getMyIntents = async(req, res)=>{
     const intents = await UserIntent.find({
-        userId: req.user._id,
-    }).populaate("productId storeId");
+        userId: req.user._id,   //only get therefore getting only userid via validation middleware(bearer token)
+    }).populate("productId storeId");
 
     res.json({
         success: true,

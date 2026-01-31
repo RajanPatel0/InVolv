@@ -184,7 +184,10 @@ export const updateProduct = async(req, res)=>{
         }
 
         await product.save();
+        console.log("About to process product intents...");
         await processProductIntents(product);  //check for any user intents to be triggered on update
+        console.log("Product intents processed successfully");
+        
         invalidateSearchCache().catch(() => {});
         invalidateTrendingCache().catch(() => {});
         

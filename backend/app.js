@@ -17,9 +17,14 @@ import vendorAuthRoutes from "./routes/vendorRoutes/authRoute.js";
 import vendorProductRoute from "./routes/vendorRoutes/productRoute.js";
 
 import userAuthRoutes from "./routes/userRoutes/userAuthRoute.js";
+import userInvolvRoutes from "./routes/userRoutes/intentRoute.js";
+import involvNotificationRoute from "./routes/userRoutes/notificationRoute.js";
 import searchRoute from "./routes/userRoutes/searchRoute.js"
 
+//User Routes
 app.use("/api/user", userAuthRoutes);
+app.use("/api/userInvolv", userInvolvRoutes);
+app.use("/api/userInvolv", involvNotificationRoute);
 
 app.use("/api/search", searchRoute);
 

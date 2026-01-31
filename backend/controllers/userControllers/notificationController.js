@@ -3,7 +3,9 @@ import Notification from "../../models/UserModels/notificationModel.js";;
 export const getNotifications = async(req, res)=>{
     const notification = await Notification.find({
         userId: req.user._id,
-    }).sort({ createdAt: -1});
+    }).sort({ createdAt: -1})
+      .limit(30)
+      .lean();
 
     res.json({
         success: true,
@@ -37,3 +39,12 @@ export const unreadCount = async(req, res)=>{
         count,
     });
 }
+
+export const markAllAsRead = async (req, res) => {
+  await Notification.updateMany(
+    { userId: req.user._id, isRead: false },
+    { isRead: true }
+  );
+
+  res.json({ success: true });
+};
