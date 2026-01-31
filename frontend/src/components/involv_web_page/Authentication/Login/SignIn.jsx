@@ -87,7 +87,7 @@ const SignIn = () => {
   return (
     <div className="min-h-screen w-[100%] bg-white ">
       <ToastContainer position="top-right" autoClose={3000} />
-      <nav className="w-full bg-[#000075] text-white shadow-lg">
+      <nav className="w-full bg-[#000075] text-white shadow-lg sticky top-0 z-[100]">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           
           {/* Logo + InVolv */}

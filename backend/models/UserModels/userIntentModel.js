@@ -7,9 +7,9 @@ const userIntentSchema = new mongoose.Schema({
         required: true,
     },
 
-    storId: {
+    storeId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Store",
+        ref: "Vendor",
         required: true,
     },
 
@@ -28,6 +28,8 @@ const userIntentSchema = new mongoose.Schema({
     meta: {
         initialPrice: { type: Number },
         initialStock: { type: Number },
+        lastNotifiedPrice: { type: Number },
+        lastNotifiedStock: { type: Number },
     },
 
     status: {

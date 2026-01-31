@@ -111,7 +111,7 @@ export default function Home() {
 
       {/* RESULTS */}
       {hasSearched && (
-        <section className="mx-auto max-w-[90vw] overflow-x-hidden px-4 py-10">
+        <section className="mx-auto lg:max-w-[90vw] sm:max-w-[98vw] overflow-x-hidden px-4 py-10">
           {/* Header */}
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
