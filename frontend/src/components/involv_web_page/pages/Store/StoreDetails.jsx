@@ -57,16 +57,35 @@ const StoreDetails = () => {
           setStoreData(mainStore);
           setNearbyStores(nearbyAlternatives);
 
-          // Set first product as selected or matching product
-          const matchingProduct = mainStore.products.find(
-            (p) => p.name.toLowerCase().includes(query.toLowerCase())
-          );
-          setSelectedProduct(matchingProduct || mainStore.products[0] || null);
+          // Use productId from selectedStore if available, otherwise find matching product
+          let productToSelect = null;
+          
+          if (selectedStore.productId) {
+            // If we have a specific productId, use it
+            productToSelect = mainStore.products.find(
+              (p) => p.id === selectedStore.productId
+            );
+          }
+          
+          // If no productId or product not found, try to find by name
+          if (!productToSelect && query) {
+            productToSelect = mainStore.products.find(
+              (p) => p.name.toLowerCase().includes(query.toLowerCase())
+            );
+          }
+          
+          // If still nothing, use the first product
+          if (!productToSelect) {
+            productToSelect = mainStore.products[0] || null;
+          }
+          
+          setSelectedProduct(productToSelect);
 
           // Store in Zustand for reference
           setStoreDetails({
             ...mainStore,
             location: mainStore.location,
+            selectedProductId: productToSelect?.id,
           });
         } else {
           setError(response.message || "Failed to load store details");
@@ -181,7 +200,7 @@ const StoreDetails = () => {
             <section id="actions">
               <StoreActions
                 storeId={storeData.id}
-                productId={selectedProduct?._id}
+                productId={selectedProduct?.id}
               />
             </section>
 

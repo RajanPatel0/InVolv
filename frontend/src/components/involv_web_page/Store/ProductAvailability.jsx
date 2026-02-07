@@ -5,9 +5,11 @@ export default function ProductAvailability({ product }) {
 
   // Calculate minutes since update
   const getUpdatedMins = () => {
-    if (!product.updatedAt) return "just now";
+    // Use createdAt or updatedAt from product
+    const timestamp = product.updatedAt || product.createdAt || new Date();
+    if (!timestamp) return "just now";
     const now = new Date();
-    const updated = new Date(product.updatedAt);
+    const updated = new Date(timestamp);
     const mins = Math.floor((now - updated) / (1000 * 60));
     if (mins === 0) return "just now";
     if (mins === 1) return "1 min ago";
@@ -33,17 +35,17 @@ export default function ProductAvailability({ product }) {
         {/* Product Info */}
         <div>
           <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-            {product.name}
+            {product.name || product.pdtName || "Product"}
           </h3>
 
           <p className="mt-1 text-2xl font-bold text-neutral-900 dark:text-white">
-            ₹{product.price?.toLocaleString("en-IN") || "N/A"}
+            ₹{(product.price || 0)?.toLocaleString("en-IN") || "N/A"}
           </p>
 
           <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
             <span className="inline-flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-400">
               <CheckCircle2 className="h-4 w-4" />
-              In stock ({product.stock} units)
+              In stock ({product.stock || 0} units)
             </span>
 
             {/* Updated Time with Tooltip */}

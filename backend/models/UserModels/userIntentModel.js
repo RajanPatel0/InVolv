@@ -37,6 +37,10 @@ const userIntentSchema = new mongoose.Schema({
         enum: ["ACTIVE", "TRIGGERED", "CANCELLED"],
         default: "ACTIVE",
     },
-}, { timeStamp: true});
+
+    expiresAt: {    //adding expiry date only for RESERVE intent
+        type: Date,
+    },
+}, {timeStamp: true});
 
 export default mongoose.model("UserIntent", userIntentSchema);

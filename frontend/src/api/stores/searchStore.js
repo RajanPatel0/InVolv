@@ -111,6 +111,17 @@ export const useSearchStore = create((set, get) => ({
     set({ storeDetails: store });
   },
 
+  // Add action to pass selected product to details page
+  setSelectedProduct: (productId) => {
+    const state = get();
+    set({ 
+      selectedStore: {
+        ...state.selectedStore,
+        productId: productId
+      }
+    });
+  },
+
   clearStoreDetails: () => {
     set({ storeDetails: null });
   },

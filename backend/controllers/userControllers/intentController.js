@@ -18,6 +18,11 @@ export const createIntent = async(req, res)=>{
             initialPrice: product.price,
             initialStock: product.stock,
         }
+        let expiresAt = null;
+
+        if (intentType === "RESERVE") {
+            expiresAt = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000); // 2 days
+        }
 
         const intent = await UserIntent.create({
             userId,
@@ -25,6 +30,7 @@ export const createIntent = async(req, res)=>{
             productId,
             intentType,
             meta,
+            expiresAt,
         });
 
         await Notification.create({ //for base case at starting on action button click 
@@ -52,9 +58,9 @@ export const createIntent = async(req, res)=>{
     }
 };
 
-export const cancelIntent = async(req, res)=>{
+export const cancelIntent = async(req, res)=>{  //applicatble for all three intent types manual cancellation(deletion) of intent by user
     try{
-        const intent = await UserIntent.findOne({
+        const intent = await UserIntent.findOneAndDelete({
             _id: req.params.id,
             userId: req.user._id,
         });
@@ -64,9 +70,9 @@ export const cancelIntent = async(req, res)=>{
                 message: "Intent not found"
             });
         }
-        //if exists, cancel it & save
-        intent.status= "CANCELLED";
-        await intent.save();
+        //if exists, cancel it & save   -  no need this status updation as we are deleting the intent
+        // intent.status= "CANCELLED";
+        // await intent.save();
 
         res.json({success: true, message: "Intent cancelled successfully"});
     } catch(err){
@@ -78,6 +84,11 @@ export const cancelIntent = async(req, res)=>{
 }
 
 export const getMyIntents = async(req, res)=>{
+    await UserIntent.deleteMany({   //no need for other intents as auto-expiry handling is only for RESERVE  those other's two are cancelled manually via above cancelIntent api
+        intentType: "RESERVE",
+        expiresAt: { $lte: new Date() },   //if expires at for any  reserve pdt is less than or equal to current date
+    })
+
     const intents = await UserIntent.find({
         userId: req.user._id,   //only get therefore getting only userid via validation middleware(bearer token)
     }).populate("productId storeId");
