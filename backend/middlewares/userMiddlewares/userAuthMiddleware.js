@@ -2,26 +2,26 @@ import { verifyAccessToken, getUserFromToken } from "../../utils/Tokens/userToke
 
 export const userAuthMiddleware = async (req, res, next) => {
   try {
-    // 1. Check for Authorization header
-    const authHeader = req.headers.authorization;
+    // Get token from cookies (like vendor uses)
+    const token = req.cookies.accessToken;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!token) {
       return res.status(401).json({ message: "Unauthorized: Token missing" });
     }
 
-    // 2. Extract the token
-    const token = authHeader.split(" ")[1];
-
-    // 3. Verify the token (checks signature + expiry)
+    // Verify the token (checks signature + expiry)
     const decoded = verifyAccessToken(token);
 
-    // 4. Get user from decoded token's id
+    // Get user from decoded token's id
     const user = await getUserFromToken(token);
 
-    // 5. Token is valid → attach user to req object
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+    // Token is valid → attach user to req object
     req.user = user;
 
-    // 6. Continue to protected route
+    // Continue to protected route
     next();
 
   } catch (err) {

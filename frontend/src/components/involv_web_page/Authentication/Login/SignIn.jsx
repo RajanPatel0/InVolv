@@ -59,11 +59,29 @@ const SignIn = () => {
     try {
       const res = await loginUser(data.email, data.password);
 
-      console.log("Login Response:", res.data);
+      console.log("Login Response:", res);
+      
+      // Backend sends accessToken, backend sends it as cookie with withCredentials
+      // We just need to store it in localStorage for frontend checks
+      // The actual token is already in the cookie (sent by backend with response)
+      if (res.accessToken) {
+        localStorage.setItem("accessToken", res.accessToken);
+        console.log("AccessToken stored successfully:", res.accessToken.substring(0, 20) + "...");
+      } else {
+        console.warn("No accessToken in response:", res);
+        throw new Error("No accessToken received from login");
+      }
+
+      // Store user data
+      if (res.user) {
+        localStorage.setItem("user", JSON.stringify(res.user));
+      }
+
       toast.success(res.message || "Logged In Successfully!");
+      
       try {
         if (data.rememberMe) {
-          localStorage.setItem("rememberedUser", JSON.stringify({ email, password: data.password }));
+          localStorage.setItem("rememberedUser", JSON.stringify({ email: data.email, password: data.password }));
         } else {
           localStorage.removeItem("rememberedUser");
         }
@@ -71,14 +89,14 @@ const SignIn = () => {
         // ignore storage errors
       }   
       
-      localStorage.setItem("user", JSON.stringify(res.user));
+      // Redirect after successful login
       setTimeout(() => {
         navigate("/");
       }, 1000);
 
     } catch (error) {
       console.error("Error logging in User:", error);
-      toast.error(error.response?.data?.message ||  "Login failed");
+      toast.error(error.response?.data?.message ||  error.message || "Login failed");
     } finally {
       setLoading(false);
     }

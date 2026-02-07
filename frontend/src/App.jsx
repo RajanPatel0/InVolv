@@ -3,6 +3,8 @@ import { Navigate } from "react-router-dom";
 import {ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+
 import PageNotFound from "./vendor/components/PageNotFound";
 import Home from "./components/involv_web_page/pages/Home/Home";
 import NewUser from "./components/involv_web_page/Authentication/SignUp/NewUser"
@@ -13,6 +15,7 @@ import VendorSignIn from "./vendor/Authentication/Login/VendorSignIn";
 import VerifyOtp from "./components/involv_web_page/Authentication/VerifyOtp/VerifyOtp";
 
 import StoreDetails from "./components/involv_web_page/pages/Store/StoreDetails";
+import MyInvolv from "./components/involv_web_page/pages/MyInvolv/MyInvolv";
 
 import Dashboard from "./vendor/Pages/Dashboard";
 import Upload from "./vendor/Pages/Upload";
@@ -38,6 +41,13 @@ const App = () => {
         <Route path="/userSignUp" element={<UserSignUp />} />
         <Route path="/userSignIn" element={<SignIn />} />
         <Route path="/store-details" element={<StoreDetails />} />
+        <Route 
+          path="/myinvolv" 
+          element={
+          <ProtectedRoute>
+            <MyInvolv/>
+          </ProtectedRoute>
+        } />
         
 
         <Route path="/verify-otp" element={<VerifyOtp /> } />

@@ -73,3 +73,41 @@ Documentation:
       setState Calls	   6+	      1
       Code Lines	      ~140	   ~90
       Breaking Changes	N/A	   0
+
+4. Events Driven Trigers Required in User Module:
+
+      User Action
+         ↓
+      UserIntent API
+         ↓  userIntentModel with three (intent types & statuses)
+         ↓  and a notification model with User ref and title, message, link, Read
+      Stored as ACTIVE intent (in starting on reserving/enabling notify)  ->   which later updates to triggered on updation/notify
+         ↓
+      Vendor updates product
+         ↓
+      Intent Processor runs (utils)
+         ↓
+      Notification created
+         ↓
+      User sees it in MyInVolv
+   
+   1. UserIntent & Notification Model 
+   2. Then create , cancel, getMy( id params) - Intent controller 
+      & getNotification , markasread (id params), unreadCount - notification controller
+   3. Then making routes for these 2*(3) api's
+   4. INTENT Processor for what to trigger with what content  -  processProductIntent & trigger
+   5. Then Connect this processor to existing product exist api
+   6. Complete User Flow:
+            User
+               ✔ Clicks Reserve / Notify
+               ✔ Intent saved
+            Vendor
+               ✔ Updates product
+            Backend
+               ✔ Intent processor runs
+               ✔ Notification created
+            User
+               ✔ Sees badge in navbar
+               ✔ Opens MyInVolv
+               ✔ Marks read / cancels
+   7.

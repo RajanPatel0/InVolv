@@ -104,6 +104,7 @@ export const searchProductNearby = async (req, res) => {
 
     const finalResult = products
       .map(p => ({
+        productId: p._id.toString(), // ADD PRODUCT ID
         productImage: p.image,
         productName: p.pdtName,
         productCategory: p.category,
