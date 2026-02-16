@@ -19,6 +19,45 @@ export default function StoreCard({
 }) {
   const navigate = useNavigate();
 
+  // Add this check for productId
+  const getProductId = () => {
+    // Ensure we have a valid product ID
+    return store.product?._id || store.product?.id || store.productId || null;
+  };
+
+  // Modify the View Store button click handler
+  const handleViewStore = (e) => {
+    e.stopPropagation(); // Prevent triggering parent onClick
+    
+    // First select the store in Zustand
+    if (onSelect) {
+      onSelect({
+        ...store,
+        productId: getProductId() // Ensure productId is passed
+      });
+    }
+    
+    // Navigate to store details
+    navigate("/store-details", {
+      state: {
+        fromSearch: true,
+        productId: getProductId(),
+        storeId: store._id || store.id,
+        preserveQuery: true
+      }
+    });
+  };
+
+  // Modify the main div onClick
+  const handleCardClick = () => {
+    if (onSelect) {
+      onSelect({
+        ...store,
+        productId: getProductId()
+      });
+    }
+  };
+
   const categoryColor = {
     grocery: "bg-emerald-500/20 text-emerald-300 border-emerald-400/30",
     electronics: "bg-blue-500/20 text-blue-300 border-blue-400/30",
@@ -44,7 +83,7 @@ export default function StoreCard({
       className="relative"
     >
       <div
-        onClick={() => onSelect(store)}
+        onClick={handleCardClick}
         className={`
           relative group cursor-pointer rounded-2xl border
           bg-gradient-to-br from-[#064e3b] to-[#020617]
@@ -188,14 +227,7 @@ export default function StoreCard({
 
         {/* CTA */}
         <button
-          onClick={() => {
-            onSelect(store);
-            navigate("/store-details", {
-              state: {
-                fromSearch: true,
-              },
-            });
-          }}
+          onClick={handleViewStore}
           className={`mt-3 w-full rounded-xl font-medium transition active:scale-[0.98]
           ${
             isCompact

@@ -9,10 +9,12 @@ import StoreActions from "../../Store/StoreActions";
 import SimilarStores from "../../Store/SimilarStores";
 import { useSearchStore } from "../../../../api/stores/searchStore";
 import { getStoreDetails } from "../../../../api/userApi/userApis";
+import DynamicStoreActions from "../../Store/DynamicStoreActions";
 
 const StoreDetails = () => {
   const navigate = useNavigate();
   const mapRef = useRef(null);
+  const actionRef = useRef(null);
   const selectedStore = useSearchStore((state) => state.selectedStore);
   const userLocation = useSearchStore((state) => state.userLocation);
   const query = useSearchStore((state) => state.query);
@@ -33,8 +35,27 @@ const StoreDetails = () => {
     }
   };
 
+  const scrollToAction = () => {
+    if (actionRef.current) {
+      actionRef.current.scrollIntoView({ 
+        behavior: "smooth", 
+        block: "start" 
+      });
+    }
+  };
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
+
+    // Check auth status and fetch intents
+    const checkAuth = async () => {
+      const isAuth = useSearchStore.getState().checkAuthStatus();
+      if (isAuth) {
+        await useSearchStore.getState().fetchUserIntents();
+      }
+    };
+    
+    checkAuth();
 
     // If no selectedStore, redirect back
     if (!selectedStore || !userLocation) {
@@ -155,6 +176,7 @@ const StoreDetails = () => {
               phone={storeData.phone}
               address={storeData.address}
               onGetDirections={scrollToMap}
+              onPreBook={scrollToAction}
             />
           </aside>
 
@@ -197,8 +219,8 @@ const StoreDetails = () => {
               />
             </section>
 
-            <section id="actions">
-              <StoreActions
+            <section id="actions" ref={actionRef}>
+              <DynamicStoreActions
                 storeId={storeData.id}
                 productId={selectedProduct?.id}
               />

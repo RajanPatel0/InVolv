@@ -121,7 +121,7 @@ export const searchProductNearby = async (req, res) => {
     // CACHE RESULT
     if (redis) {
       try {
-        await redis.setex(cacheKey, 60, JSON.stringify(finalResult));
+        await redis.setex(cacheKey, 600, JSON.stringify(finalResult));
       } catch {}
     }
 
