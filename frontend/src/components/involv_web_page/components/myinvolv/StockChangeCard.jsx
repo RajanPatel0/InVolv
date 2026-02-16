@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import CancelConfirmModal from "./CancelConfirmModal.jsx";
+import { useSearchStore } from "../../../../api/stores/searchStore.js";
 
 export default function StockChangeCard({ intent, onCancel, index = 0 }) {
   const navigate = useNavigate();
@@ -10,6 +11,39 @@ export default function StockChangeCard({ intent, onCancel, index = 0 }) {
   const stockLevel = intent.productId.stock;
   const isLowStock = stockLevel < 5;
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const selectStoreAndNavigate = () => {
+    //getting store object with proper location structure
+    //from myinvolv we don't have store location so we store default
+    const storeObject = {
+      _id: intent.storeId._id,
+      id: intent.storeId._id,
+      name: intent.storeId.storeName,
+      productId: intent.productId._id,
+      latitude: intent.storeId.location?.coordinates?.[1] || 0,
+      longitude: intent.storeId.location?.coordinates?.[0] ||0,
+
+    product: {
+      id: intent.productId._id,
+      name: intent.productId.pdtName,
+      price: intent.productId.price,
+      stock: intent.productId.stock,
+      productCategory: intent.productId.category || "general"
+    }
+  };
+    // First, set the selected store in Zustand 
+    useSearchStore.getState().selectStore(storeObject);
+    
+    // Then navigate
+    navigate(`/store-details`, {
+      state: {
+        fromMyInvolv: true,
+        productId: intent.productId._id,
+        storeId: intent.storeId._id,
+        storeData: storeObject
+      }
+    });
+  };
 
   const handleCancelClick = () => {
     setShowConfirm(true);
@@ -97,7 +131,7 @@ export default function StockChangeCard({ intent, onCancel, index = 0 }) {
             {/* ACTIONS */}
             <div className="flex gap-2 pt-1">
               <button
-                onClick={() => navigate(`/store/${intent.storeId?._id || '#'}`)}
+                onClick={selectStoreAndNavigate}
                 className={`flex-1 rounded-lg text-sm font-medium py-2.5
                 transition-all duration-200 active:scale-[0.98]
                 flex items-center justify-center gap-2

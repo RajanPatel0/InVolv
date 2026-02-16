@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { loginUser } from "../../../../api/userApi/userApis.js";
+import { useSearchStore } from "../../../../api/stores/searchStore.js";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -11,6 +12,10 @@ const SignIn = () => {
     password: "",
     rememberMe: false,
   });
+
+  // Add Zustand store access
+  const checkAuthStatus = useSearchStore(state => state.checkAuthStatus);
+  const fetchUserIntents = useSearchStore(state => state.fetchUserIntents);
 
   // Load remembered email on mount
   useEffect(() => {
@@ -67,6 +72,10 @@ const SignIn = () => {
       if (res.accessToken) {
         localStorage.setItem("accessToken", res.accessToken);
         console.log("AccessToken stored successfully:", res.accessToken.substring(0, 20) + "...");
+        
+        // Update Zustand store after successful login
+        checkAuthStatus();
+        await fetchUserIntents(); // Fetch user intents after login
       } else {
         console.warn("No accessToken in response:", res);
         throw new Error("No accessToken received from login");
@@ -91,7 +100,13 @@ const SignIn = () => {
       
       // Redirect after successful login
       setTimeout(() => {
-        navigate("/");
+        // Check if there's a returnTo state in navigation
+        const locationState = window.history.state?.usr;
+        if (locationState?.returnTo) {
+          navigate(locationState.returnTo);
+        } else {
+          navigate("/");
+        }
       }, 1000);
 
     } catch (error) {

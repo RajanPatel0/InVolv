@@ -116,7 +116,7 @@ export default function Home() {
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-2xl font-bold">
-                {loading ? "Searching nearby stores…" : `${stores.length} stores found`}
+                {loading ? "Searching nearby stores…" : `${stores.length} stores found in entered Radius`}
               </h2>
 
               <p className="text-slate-400">

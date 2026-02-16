@@ -95,8 +95,8 @@ const MyInvolv = () => {
           </div>
 
           <div className='hidden md:flex items-center gap-2'>
-            <button className="p-2 rounded-lg hover:bg-white/10 transition">
-              <Bell size={20} className="text-white" />
+            <button className="cursor-pointer p-2 rounded-lg bg-white/20 hover:bg-white text-white hover:text-black font bold transition">
+              <Bell size={25} />
             </button>
           </div>
         </div>

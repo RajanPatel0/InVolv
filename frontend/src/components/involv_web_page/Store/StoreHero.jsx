@@ -1,7 +1,7 @@
 import React from "react";
 import { MapPin, Phone, Bookmark, CheckCircle } from "lucide-react";
 
-const StoreHero = ({ store, eta, distance, phone, address, onGetDirections }) => {
+const StoreHero = ({ store, eta, distance, phone, address, onGetDirections, onPreBook }) => {
   const isOpen = store?.isOpen;
 
   const handleCall = () => {
@@ -79,7 +79,9 @@ const StoreHero = ({ store, eta, distance, phone, address, onGetDirections }) =>
             >
               <Phone size={16} /> Call
             </button>
-            <button className="flex text-neutral-900 dark:text-white items-center justify-center gap-2 border border-neutral-200 dark:border-neutral-700 py-3 rounded-xl text-sm font-semibold hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
+            <button 
+            onClick={onPreBook}
+            className="flex text-neutral-900 dark:text-white items-center justify-center gap-2 border border-neutral-200 dark:border-neutral-700 py-3 rounded-xl text-sm font-semibold hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
               <Bookmark size={16} /> Pre Book
             </button>
           </div>

@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom"
 import { Navigate } from "react-router-dom";
 import {ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import { useSearchStore}  from "./api/stores/searchStore"
 
 import PageNotFound from "./vendor/components/PageNotFound";
 import Home from "./components/involv_web_page/pages/Home/Home";
@@ -28,6 +30,28 @@ import Topbar from "./vendor/components/Topbar";
 import VendorLayout from "./vendor/layout/vendorLayout";
 
 const App = () => {
+
+  const checkAuthStatus = useSearchStore(state => state.checkAuthStatus);
+  const clearUserData = useSearchStore(state => state.clearUserData);
+  
+  useEffect(() => {
+    // Check auth on app load
+    checkAuthStatus();
+    
+    // Listen for storage events (for logout from other tabs)
+    const handleStorageChange = (e) => {
+      if (e.key === 'accessToken' && !e.newValue) {
+        clearUserData();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [checkAuthStatus, clearUserData]);
+
   return (
     <>
       {/* <ToastContainer position="right-bottom" /> */}
