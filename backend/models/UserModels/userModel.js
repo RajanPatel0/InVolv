@@ -8,6 +8,11 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true, trim:true },
     otp: { type: String, default: null},  //hashed otp
     otpExpiresAt: { type: Date, default: null},
+    fcmToken: { 
+        type: String, 
+        default: null,
+        sparse: true, // Allows multiple null values
+    },
     createdAt: { type: Date, default: Date.now }
 });
 

@@ -7,7 +7,10 @@ import ReserveCard from '../../components/myinvolv/ReserveCard.jsx'
 import PriceDropCard from '../../components/myinvolv/PriceDropCard.jsx'
 import StockChangeCard from '../../components/myinvolv/StockChangeCard.jsx'
 import SkeletonCard from '../../components/myinvolv/SkeletonCard.jsx'
+import NotificationPopup from '../../components/NotificationPopup.jsx'
+import NotificationBadge from '../../components/NotificationBadge.jsx'
 import { getIntent, cancelIntent as cancelIntentAPI } from '../../../../api/userApi/myinvolvApis.js'
+import useNotificationStore from '../../../../api/stores/notificationStore.js'
 
 const MyInvolv = () => {
   const navigate = useNavigate()
@@ -17,10 +20,24 @@ const MyInvolv = () => {
   const [stockChanges, setStockChanges] = useState([])
   const [error, setError] = useState(null)
   const [toastMessage, setToastMessage] = useState(null)
+  const [showNotificationPopup, setShowNotificationPopup] = useState(false)
+
+  // Notification store
+  const unreadCount = useNotificationStore((state) => state.unreadCount)
+  const fetchUnreadCount = useNotificationStore((state) => state.fetchUnreadCount)
 
   useEffect(() => {
     fetchIntents()
-  }, [])
+    // Fetch unread count for notification badge
+    fetchUnreadCount()
+    
+    // Refresh unread count periodically
+    const interval = setInterval(() => {
+      fetchUnreadCount()
+    }, 30000) // Every 30 seconds
+
+    return () => clearInterval(interval)
+  }, [fetchUnreadCount])
 
   const fetchIntents = async () => {
     try {
@@ -79,6 +96,7 @@ const MyInvolv = () => {
       {/* NAVBAR */}
       <nav className="w-full bg-[#000075] text-white shadow-lg sticky top-0 z-[100]">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          {/* Logo */}
           <div
             className="flex items-center gap-3 cursor-pointer hover:opacity-90 transition"
             onClick={() => navigate("/")}
@@ -94,9 +112,27 @@ const MyInvolv = () => {
             </div>
           </div>
 
-          <div className='hidden md:flex items-center gap-2'>
-            <button className="cursor-pointer p-2 rounded-lg bg-white/20 hover:bg-white text-white hover:text-black font bold transition">
+          {/* Desktop Bell */}
+          <div className="hidden md:flex items-center gap-2">
+            <button
+              onClick={() => setShowNotificationPopup(!showNotificationPopup)}
+              className="relative cursor-pointer p-2 rounded-lg bg-white/20 hover:bg-white text-white hover:text-black font-bold transition"
+              title="Notifications"
+            >
               <Bell size={25} />
+              <NotificationBadge count={unreadCount} variant="dot" />
+            </button>
+          </div>
+
+          {/* Mobile Bell */}
+          <div className="flex md:hidden items-center gap-2">
+            <button
+              onClick={() => setShowNotificationPopup(!showNotificationPopup)}
+              className="relative cursor-pointer p-2 rounded-lg bg-white/20 hover:bg-white text-white hover:text-black font-bold transition"
+              title="Notifications"
+            >
+              <Bell size={22} />
+              <NotificationBadge count={unreadCount} variant="dot" />
             </button>
           </div>
         </div>
@@ -368,6 +404,12 @@ const MyInvolv = () => {
           <span className="text-sm font-medium">{toastMessage.message}</span>
         </motion.div>
       )}
+
+      {/* Notification Popup */}
+      <NotificationPopup 
+        isOpen={showNotificationPopup} 
+        onClose={() => setShowNotificationPopup(false)}
+      />
     </div>
   )
 }
