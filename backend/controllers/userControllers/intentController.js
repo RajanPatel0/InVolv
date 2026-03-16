@@ -1,6 +1,7 @@
 import UserIntent from "../../models/UserModels/userIntentModel.js";
 import Notification from "../../models/UserModels/notificationModel.js";
 import Product from "../../models/StoreModels/productModel.js";
+import Vendor from "../../models/StoreModels/vendorModel.js";
 import { sendIntentCreatedNotification } from "../../utils/fcmService.js";
 
 export const createIntent = async(req, res)=>{
@@ -8,11 +9,21 @@ export const createIntent = async(req, res)=>{
         const userId= req.user._id;
         const { storeId, productId, intentType} = req.body;
 
-        const product = await Product.findById(productId).populate('vendorId', 'name');
+        // Fetch product with vendor details
+        const product = await Product.findById(productId).populate('vendorId', 'storeName');
         if(!product){
             return res.status(404).json({
                 success: false,
                 message: "Product not found"
+            });
+        }
+
+        // Fetch store details using storeId
+        const store = await Vendor.findById(storeId);
+        if(!store){
+            return res.status(404).json({
+                success: false,
+                message: "Store not found"
             });
         }
 
@@ -51,35 +62,22 @@ export const createIntent = async(req, res)=>{
             expiresAt,
         });
 
-        // Send FCM notification
+        // Send FCM notification with product details
         try {
-            const storeName = product.storeId?.name || "Store";
+            const productName = product.pdtName || "Product";
+            const storeName = store.storeName || "Store";
             await sendIntentCreatedNotification(
                 userId,
                 intentType,
-                product.name,
-                storeName
+                productName,
+                storeName,
+                storeId,
+                productId
             );
         } catch (fcmError) {
             console.error("FCM notification error (non-blocking):", fcmError);
             // Don't fail the intent creation if FCM fails
         }
-
-        // Also create a database notification entry as backup
-        await Notification.create({
-            userId,
-            title: "You're all set ✅",
-            message: intentType === "PRICE_DROP"
-                ? "We'll notify you when the price drops"
-                : intentType === "STOCK_CHANGE"
-                ? "We'll notify you if stock changes"
-                : "Product reserved successfully",
-            link: `/store/${storeId}`,
-            notificationType: "INTENT_CREATED",
-            intentId: intent._id,
-            storeId,
-            productId,
-        });
 
         res.status(201).json({
             success: true,
