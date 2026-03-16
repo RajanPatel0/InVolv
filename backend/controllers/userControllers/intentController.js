@@ -1,16 +1,34 @@
 import UserIntent from "../../models/UserModels/userIntentModel.js";
 import Notification from "../../models/UserModels/notificationModel.js";
 import Product from "../../models/StoreModels/productModel.js";
+import { sendIntentCreatedNotification } from "../../utils/fcmService.js";
 
 export const createIntent = async(req, res)=>{
     try{
         const userId= req.user._id;
         const { storeId, productId, intentType} = req.body;
 
-        const product = await Product.findById(productId);
+        const product = await Product.findById(productId).populate('vendorId', 'name');
         if(!product){
             return res.status(404).json({
+                success: false,
                 message: "Product not found"
+            });
+        }
+
+        // Check if intent already exists
+        const existingIntent = await UserIntent.findOne({
+            userId,
+            productId,
+            storeId,
+            intentType,
+            status: "ACTIVE"
+        });
+
+        if (existingIntent) {
+            return res.status(400).json({
+                success: false,
+                message: `You already have an active ${intentType} intent for this product`,
             });
         }
 
@@ -33,15 +51,34 @@ export const createIntent = async(req, res)=>{
             expiresAt,
         });
 
-        await Notification.create({ //for base case at starting on action button click 
+        // Send FCM notification
+        try {
+            const storeName = product.storeId?.name || "Store";
+            await sendIntentCreatedNotification(
+                userId,
+                intentType,
+                product.name,
+                storeName
+            );
+        } catch (fcmError) {
+            console.error("FCM notification error (non-blocking):", fcmError);
+            // Don't fail the intent creation if FCM fails
+        }
+
+        // Also create a database notification entry as backup
+        await Notification.create({
             userId,
             title: "You're all set ✅",
-            message: intentType === "PRICE_DROP"    //equality check if alreasdy exists
-                ? "We’ll notify you when the price drops"
+            message: intentType === "PRICE_DROP"
+                ? "We'll notify you when the price drops"
                 : intentType === "STOCK_CHANGE"
-                ? "We’ll notify you if stock changes"
-                : "Product reserved successfully",  //this is for first time default
+                ? "We'll notify you if stock changes"
+                : "Product reserved successfully",
             link: `/store/${storeId}`,
+            notificationType: "INTENT_CREATED",
+            intentId: intent._id,
+            storeId,
+            productId,
         });
 
         res.status(201).json({
@@ -58,7 +95,7 @@ export const createIntent = async(req, res)=>{
     }
 };
 
-export const cancelIntent = async(req, res)=>{  //applicatble for all three intent types manual cancellation(deletion) of intent by user
+export const cancelIntent = async(req, res)=>{
     try{
         const intent = await UserIntent.findOneAndDelete({
             _id: req.params.id,
@@ -66,16 +103,18 @@ export const cancelIntent = async(req, res)=>{  //applicatble for all three inte
         });
 
         if(!intent){
-            res.status(404).json({
+            return res.status(404).json({
+                success: false,
                 message: "Intent not found"
             });
         }
-        //if exists, cancel it & save   -  no need this status updation as we are deleting the intent
-        // intent.status= "CANCELLED";
-        // await intent.save();
 
-        res.json({success: true, message: "Intent cancelled successfully"});
+        res.json({
+            success: true, 
+            message: "Intent cancelled successfully"
+        });
     } catch(err){
+        console.error("Cancel Intent Error:", err);
         res.status(500).json({
             success: false,
             message: "Server Error"
@@ -84,17 +123,27 @@ export const cancelIntent = async(req, res)=>{  //applicatble for all three inte
 }
 
 export const getMyIntents = async(req, res)=>{
-    await UserIntent.deleteMany({   //no need for other intents as auto-expiry handling is only for RESERVE  those other's two are cancelled manually via above cancelIntent api
-        intentType: "RESERVE",
-        expiresAt: { $lte: new Date() },   //if expires at for any  reserve pdt is less than or equal to current date
-    })
+    try {
+        await UserIntent.deleteMany({
+            intentType: "RESERVE",
+            expiresAt: { $lte: new Date() },
+            status: "ACTIVE",
+        });
 
-    const intents = await UserIntent.find({
-        userId: req.user._id,   //only get therefore getting only userid via validation middleware(bearer token)
-    }).populate("productId storeId");
+        const intents = await UserIntent.find({
+            userId: req.user._id,
+            status: "ACTIVE",
+        }).populate("productId storeId");
 
-    res.json({
-        success: true,
-        intents,
-    });
+        res.json({
+            success: true,
+            intents,
+        });
+    } catch (error) {
+        console.error("Get My Intents Error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server Error",
+        });
+    }
 }

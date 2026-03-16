@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useSearchStore}  from "./api/stores/searchStore"
+import { initializeFCM } from "./api/userApi/fcmInit.js"
 
 import PageNotFound from "./vendor/components/PageNotFound";
 import Home from "./components/involv_web_page/pages/Home/Home";
@@ -33,6 +34,7 @@ const App = () => {
 
   const checkAuthStatus = useSearchStore(state => state.checkAuthStatus);
   const clearUserData = useSearchStore(state => state.clearUserData);
+  const isAuthenticated = useSearchStore(state => state.isAuthenticated);
   
   useEffect(() => {
     // Check auth on app load
@@ -51,6 +53,13 @@ const App = () => {
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [checkAuthStatus, clearUserData]);
+
+  // Initialize FCM when user is authenticated
+  useEffect(() => {
+    if (isAuthenticated && localStorage.getItem('accessToken')) {
+      initializeFCM();
+    }
+  }, [isAuthenticated]);
 
   return (
     <>

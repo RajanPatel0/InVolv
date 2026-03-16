@@ -1,11 +1,23 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
+import { useSearchStore } from '../api/stores/searchStore'
 
 const ProtectedRoute = ({ children }) => {
-  // Check if accessToken exists in localStorage
-  // The actual token is also in cookies (sent by backend)
-  const accessToken = localStorage.getItem("accessToken")
-  const isAuthenticated = accessToken && accessToken.trim().length > 0
+  const [isChecking, setIsChecking] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  const checkAuthStatus = useSearchStore(state => state.checkAuthStatus)
+
+  useEffect(() => {
+    // Use the store's auth check method which validates token
+    const isAuth = checkAuthStatus()
+    setIsAuthenticated(isAuth)
+    setIsChecking(false)
+  }, [checkAuthStatus])
+
+  if (isChecking) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/userSignIn" replace />
