@@ -6,7 +6,11 @@ const trigger = async(intent, message)=>{   //no export cuzz it's internal usage
         userId: intent.userId,
         title: "Good News! 🎉",
         message,
-        link: `/store/${intent.storeId}`,
+        link: "/myinvolv",
+        notificationType: "ALERT",
+        intentId: intent._id,
+        storeId: intent.storeId,
+        productId: intent.productId,
     });
 
     intent.status = "TRIGGERED";

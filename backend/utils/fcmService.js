@@ -91,7 +91,7 @@ export const sendFCMToMultipleUsers = async (userIds, notificationData) => {
 /**
  * Send FCM notification when an intent is created
  */
-export const sendIntentCreatedNotification = async (userId, intentType, productName, storeName) => {
+export const sendIntentCreatedNotification = async (userId, intentType, productName, storeName, storeId, productId) => {
   const messages = {
     RESERVE: `You reserved "${productName}" at "${storeName}". It will be held for 48 hours.`,
     PRICE_DROP: `You'll get notified when "${productName}" at "${storeName}" drops in price.`,
@@ -110,6 +110,8 @@ export const sendIntentCreatedNotification = async (userId, intentType, productN
     icon: icons[intentType],
     link: "/myinvolv",
     notificationType: "INTENT_CREATED",
+    storeId,
+    productId,
   });
 };
 
