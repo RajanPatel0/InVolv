@@ -47,6 +47,11 @@ export const useNotificationStore = create((set, get) => ({
 
   // Fetch unread count
   fetchUnreadCount: async () => {
+    const user = localStorage.getItem("user");
+    if (!user || user.trim().length === 0) {
+      console.log("⚠️ User not logged in, skipping unread count fetch");
+      return;
+    }
     try {
       const response = await getUnreadCount();
       set({ unreadCount: response.count });

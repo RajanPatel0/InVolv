@@ -55,9 +55,14 @@ const App = () => {
   }, [checkAuthStatus, clearUserData]);
 
   // Initialize FCM when user is authenticated
+  // Initialize FCM when user is authenticated
   useEffect(() => {
+    console.log("🔐 Auth check for FCM - isAuthenticated:", isAuthenticated);
     if (isAuthenticated && localStorage.getItem('user')) {
+      console.log("✅ User authenticated, initializing FCM");
       initializeFCM();
+    } else {
+      console.log("❌ User not authenticated, skipping FCM");
     }
   }, [isAuthenticated]);
 
