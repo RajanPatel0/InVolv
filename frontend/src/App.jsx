@@ -42,7 +42,7 @@ const App = () => {
     
     // Listen for storage events (for logout from other tabs)
     const handleStorageChange = (e) => {
-      if (e.key === 'accessToken' && !e.newValue) {
+      if (e.key === 'user' && !e.newValue) {
         clearUserData();
       }
     };
@@ -56,7 +56,7 @@ const App = () => {
 
   // Initialize FCM when user is authenticated
   useEffect(() => {
-    if (isAuthenticated && localStorage.getItem('accessToken')) {
+    if (isAuthenticated && localStorage.getItem('user')) {
       initializeFCM();
     }
   }, [isAuthenticated]);

@@ -54,3 +54,15 @@ export const getStoreDetails = async ({ storeName, lat, lng, productName }) => {
   });
   return res.data;
 };
+
+// Get user profile (requires authentication)
+export const getUserProfile = async () => {
+  const res = await api.get("/user/user-profile");
+  return res.data;
+};
+
+// Logout user (requires authentication)
+export const logoutUserApi = async () => {
+  const res = await api.post("/user/logout");
+  return res.data;
+};

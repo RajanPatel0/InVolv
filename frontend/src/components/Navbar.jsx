@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Home, Search, Bell} from "lucide-react";
+import { Home, Search, Bell, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import NotificationPopup from "./involv_web_page/components/NotificationPopup.jsx";
 import NotificationBadge from "./involv_web_page/components/NotificationBadge.jsx";
 import useNotificationStore from "../api/stores/notificationStore.js";
+import { logoutUserApi } from "../api/userApi/userApis.js";
+import { useSearchStore } from "../api/stores/searchStore.js";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -15,12 +18,29 @@ export default function Navbar() {
   // Get notification store
   const unreadCount = useNotificationStore((state) => state.unreadCount);
   const fetchUnreadCount = useNotificationStore((state) => state.fetchUnreadCount);
+  const clearUserData = useSearchStore((state) => state.clearUserData);
+
+  const handleLogout = async () => {
+    try {
+      await logoutUserApi();
+      localStorage.removeItem("user");
+      clearUserData();
+      toast.success("Logged out successfully!");
+      navigate("/userSignIn");
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Even if logout API fails, clear local data
+      localStorage.removeItem("user");
+      clearUserData();
+      navigate("/userSignIn");
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
     // Fetch unread count only when user is logged in
-    const token = localStorage.getItem("accessToken");
-    if (token && token.trim().length > 0) {
+    const user = localStorage.getItem("user");
+    if (user && user.trim().length > 0) {
       fetchUnreadCount();
 
       // Refresh count every 30 seconds
@@ -60,7 +80,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center text-sm font-[700] gap-8">
             <Link to="/" className="flex items-center gap-1 text-black hover:text-emerald-400 transition"><Home size={20} />Home</Link>
             <Link to="/search" className="flex items-center gap-1 text-black hover:text-emerald-400 transition"><Search size={20} />Search</Link>
-            {localStorage.getItem("accessToken") ? (
+            {localStorage.getItem("user") ? (
               <div className="flex items-center gap-4">
                 {/* Notification Bell */}
                 {mounted && (
@@ -77,6 +97,16 @@ export default function Navbar() {
                 <Link to="/myinvolv" className="flex items-center gap-1 text-black hover:text-emerald-400 transition">
                   My InVolv
                 </Link>
+
+                {/* Logout Button */}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-1 px-3 py-2 text-sm font-bold text-red-600 border border-red-600 rounded-lg hover:bg-red-600 hover:text-white transition"
+                  title="Logout"
+                >
+                  <LogOut size={18} />
+                  Logout
+                </button>
               </div>
             ) : (
               <button 
@@ -118,7 +148,7 @@ export default function Navbar() {
           <div className="md:hidden flex flex-col gap-4 bg-white px-4 pb-4 text-white font-[500]">
             <Link to="/" className="flex items-center text-black font-bold gap-1 hover:text-emerald-400 transition" onClick={() => setOpen(false)}><Home size={20} />Home</Link>
             <Link to="/search" className="flex items-center gap-1 text-black font-bold hover:text-emerald-400 transition" onClick={() => setOpen(false)}><Search size={20} />Search</Link>
-            {localStorage.getItem("accessToken") ? (
+            {localStorage.getItem("user") ? (
               <>
                 {/* Mobile Notification Bell */}
                 {mounted && (
@@ -142,6 +172,18 @@ export default function Navbar() {
                 )}
                 
                 <Link to="/myinvolv" className="flex items-center gap-1 text-black font-bold hover:text-emerald-400 transition" onClick={() => setOpen(false)}>My InVolv</Link>
+                
+                {/* Mobile Logout Button */}
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setOpen(false);
+                  }}
+                  className="flex items-center gap-1 text-red-600 font-bold hover:text-red-800 transition"
+                >
+                  <LogOut size={18} />
+                  Logout
+                </button>
               </>
             ) : (
               <button
