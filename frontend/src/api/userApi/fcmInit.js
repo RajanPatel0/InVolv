@@ -21,6 +21,13 @@ export const initializeFCM = async () => {
   }
 
   try {
+    // Check if user is logged in BEFORE making any API calls
+    const user = localStorage.getItem("user");
+    if (!user || user.trim().length === 0) {
+      console.log("❌ User not logged in, skipping FCM initialization");
+      return;
+    }
+
     // Check if service worker is supported
     if (!("serviceWorker" in navigator)) {
       console.log("❌ Service Workers not supported in this browser");
@@ -41,7 +48,7 @@ export const initializeFCM = async () => {
     const fcmToken = await requestNotificationPermission();
 
     if (fcmToken) {
-      // Save token to backend
+      // Save token to backend - ONLY if user is logged in
       try {
         await api.post("/userInvolv/fcm-token", { fcmToken });
         console.log("✅ FCM token registered with backend");
