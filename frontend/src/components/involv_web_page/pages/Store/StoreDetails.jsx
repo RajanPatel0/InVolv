@@ -47,15 +47,17 @@ const StoreDetails = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
 
-    // Check auth status and fetch intents
-    const checkAuth = async () => {
-      const isAuth = useSearchStore.getState().checkAuthStatus();
-      if (isAuth) {
-        await useSearchStore.getState().fetchUserIntents();
-      }
-    };
-    
-    checkAuth();
+    // Check auth status and fetch intents ONLY if user is logged in
+    const user = localStorage.getItem("user");
+    if (user && user.trim().length > 0) {
+      const checkAuth = async () => {
+        const isAuth = useSearchStore.getState().checkAuthStatus();
+        if (isAuth) {
+          await useSearchStore.getState().fetchUserIntents();
+        }
+      };
+      checkAuth();
+    }
 
     // If no selectedStore, redirect back
     if (!selectedStore || !userLocation) {

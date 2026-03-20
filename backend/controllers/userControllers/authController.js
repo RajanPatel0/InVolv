@@ -1,6 +1,10 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../../models/UserModels/userModel.js";
+import { parseExpiryToMs } from "../../utils/helpers.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken, generateOtpToken, isOtpCorrect } from "../../utils/Tokens/userTokens.js"
 import { sendUserOtpEmail } from "../../utils/OTPS/sendUserOtpEmail.js";
@@ -139,28 +143,38 @@ export const loginUser = async(req, res)=>{
             });
         }
         
-        const accessToken = generateAccessToken(user._id);   //generating access token
-        const refreshToken = generateRefreshToken(user._id);
+        const accessToken = generateAccessToken(user);   //generating access token with user object
+        const refreshToken = generateRefreshToken(user);
 
-        user.refreshToken = refreshToken;  //storing refresh token in db
-        await user.save({ validateBeforeSave: false });
-
+        // After generating refreshToken
+        user.refreshTokens.push(refreshToken);
+        await user.save();
+        
         const loggedInUser = await User.findById(user._id).select(
-            "-password -refreshToken -otp -otpExpiresAt"
+            "-password -refreshTokens -otp -otpExpiresAt"
         );
 
+        const accessTokenMaxAge = parseExpiryToMs(process.env.ACCESS_TOKEN_EXPIRY);
+        const refreshTokenMaxAge = parseExpiryToMs(process.env.REFRESH_TOKEN_EXPIRY);
+
         const isProd = process.env.NODE_ENV === "production";
-        const options = {   //sending refresh token in httpOnly cookie
-        httpOnly: true,
-        secure: isProd, // secure cookies only in production
-        sameSite: isProd ? "None" : "Lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        const accessOptions = {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'None' : 'Lax',
+            maxAge: accessTokenMaxAge,
+        };
+        const refreshOptions = {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'None' : 'Lax',
+            maxAge: refreshTokenMaxAge,
         };
 
         return res
         .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
+        .cookie("accessToken", accessToken, accessOptions)
+        .cookie("refreshToken", refreshToken, refreshOptions)
         .json({
             success: true,
             message: "User logged in successfully",           
@@ -189,7 +203,7 @@ export const getUser = async (req, res) => {
         }
 
         const user = await User.findById( userId ).select(
-        "-password -otp -refreshToken"
+        "-password -otp -refreshTokens"
         );
 
         if (!user) {
@@ -215,26 +229,129 @@ export const getUser = async (req, res) => {
 
 export const refreshAccessToken = async(req, res)=>{
     try{
-        const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;    //taking refresh token from httpOnly cookie or from request body
+        console.log("[REFRESH TOKEN] Request received");
 
-        if(!refreshToken){  //if no refresh token provided
-            return res.status(400).json({message: "Refresh Token Missing"});
+        const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
+        
+        if(!refreshToken){
+            console.error("[REFRESH TOKEN] No refresh token found");
+            return res.status(401).json({
+                success: false,
+                message: "Refresh Token Missing"
+            });
         }
 
-        const decode = verifyRefreshToken(refreshToken) //if refresh token found verify it
 
-        const user = await User.findById(decode._id).select("-password");   //if valid refresh token get user details from it
+        const decode = verifyRefreshToken(refreshToken);
+        
+        const user = await User.findById(decode.id);
 
-        if(!user){    //if no user found for id in refresh token
-            return res.status(404).json({message: "User Not Found"});
+        if(!user){
+            console.error("[REFRESH TOKEN] User not found");
+            return res.status(401).json({
+                success: false, 
+                message: "User Not Found"
+            });
         }
 
-        const newAccessToken = generateAccessToken(user); //for user found generate new access token
-        res.status(200).json({  //& return it in response as of access token
-            status: "success",
-            accessToken: newAccessToken
+        if(!user.refreshTokens.includes(refreshToken)){
+            console.error("[REFRESH TOKEN] Invalid refresh token doesn't match stored token");
+            return res.status(401).json({
+                success: false, 
+                message: "Invalid refresh token"
+            });
+        }
+
+
+        // Generate new tokens
+        const newAccessToken = generateAccessToken(user);
+        const newRefreshToken = generateRefreshToken(user);
+
+        // Rotate refresh token in DB
+        user.refreshTokens = user.refreshTokens.map(t =>
+            t === refreshToken ? newRefreshToken : t
+        );
+        await user.save();
+
+        const accessTokenMaxAge = parseExpiryToMs(process.env.ACCESS_TOKEN_EXPIRY);
+        const refreshTokenMaxAge = parseExpiryToMs(process.env.REFRESH_TOKEN_EXPIRY);
+        // Define cookie options (same as in login)
+        const isProd = process.env.NODE_ENV === "production";
+        const accessOptions = {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'None' : 'Lax',
+            maxAge: accessTokenMaxAge,
+        };
+        const refreshOptions = {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'None' : 'Lax',
+            maxAge: refreshTokenMaxAge,
+        };
+
+        console.log("[REFRESH TOKEN] Tokens refreshed successfully");
+
+        // Set new cookies
+        return res
+            .status(200)
+            .cookie("accessToken", newAccessToken, accessOptions)
+            .cookie("refreshToken", newRefreshToken, refreshOptions)
+            .json({
+                success: true,
+                status: "success",
+                message: "Access token refreshed successfully",
+                accessToken: newAccessToken,
+                timestamp: new Date().toISOString()
+            });
+    }catch(err){
+        console.error("[REFRESH TOKEN] Error during token refresh:", err);
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorized: " + err.message,
+            error: err.message
         });
-    }catch (err){
-        res.status(401).json({message: err.message});
+    }   
+};
+
+export const logoutUser = async (req, res) => {
+    try {
+        const userId = req.user?._id;
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized: User not found"
+            });
+        }
+
+        // Clear refresh token from database
+        // Remove the specific refresh token
+        await User.findByIdAndUpdate(userId, {
+            $pull: { refreshTokens: req.cookies.refreshToken }
+        });
+
+        // Clear cookies
+        const isProd = process.env.NODE_ENV === "production";
+        const cookieOptions = {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? "None" : "Lax",
+        };
+
+        return res
+            .status(200)
+            .clearCookie("accessToken", cookieOptions)
+            .clearCookie("refreshToken", cookieOptions)
+            .json({
+                success: true,
+                message: "User logged out successfully"
+            });
+    } catch (error) {
+        console.error("Error logging out:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error logging out"
+        });
     }
 };

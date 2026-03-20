@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
         default: null,
         sparse: true, // Allows multiple null values
     },
+    refreshTokens: [String], // Store multiple refresh tokens for the user
     createdAt: { type: Date, default: Date.now }
 });
 

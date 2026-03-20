@@ -22,7 +22,7 @@ const SignIn = () => {
     try {
       const remembered = JSON.parse(localStorage.getItem("rememberedUser"));
       if (remembered && remembered.email) {
-        setdata((prev) => ({ ...prev, email: remembered.email, password: remembered.password || "", rememberMe: true }));
+        setdata((prev) => ({ ...prev, email: remembered.email, rememberMe: true }));
       }
     } catch {
       // ignore parse errors
@@ -66,31 +66,26 @@ const SignIn = () => {
 
       console.log("Login Response:", res);
       
-      // Backend sends accessToken, backend sends it as cookie with withCredentials
-      // We just need to store it in localStorage for frontend checks
-      // The actual token is already in the cookie (sent by backend with response)
-      if (res.accessToken) {
-        localStorage.setItem("accessToken", res.accessToken);
-        console.log("AccessToken stored successfully:", res.accessToken.substring(0, 20) + "...");
-        
-        // Update Zustand store after successful login
-        checkAuthStatus();
-        await fetchUserIntents(); // Fetch user intents after login
-      } else {
-        console.warn("No accessToken in response:", res);
-        throw new Error("No accessToken received from login");
-      }
-
-      // Store user data
+      // Backend sets accessToken in httpOnly cookie automatically (withCredentials: true)
+      // We store user data in localStorage for auth status checks, but NOT the token
       if (res.user) {
         localStorage.setItem("user", JSON.stringify(res.user));
+        console.log("User data stored successfully");
+      } else {
+        console.warn("No user data in response:", res);
+        throw new Error("No user data received from login");
       }
+
+      // Update Zustand store after successful login
+      checkAuthStatus();
+      await fetchUserIntents(); // Fetch user intents after login
 
       toast.success(res.message || "Logged In Successfully!");
       
+      // Handle Remember Me (store email only, NOT password for security)
       try {
         if (data.rememberMe) {
-          localStorage.setItem("rememberedUser", JSON.stringify({ email: data.email, password: data.password }));
+          localStorage.setItem("rememberedUser", JSON.stringify({ email: data.email }));
         } else {
           localStorage.removeItem("rememberedUser");
         }

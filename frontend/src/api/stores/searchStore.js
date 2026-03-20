@@ -24,8 +24,9 @@ export const useSearchStore = create((set, get) => ({
   userIntentLoading: false,
 
   checkAuthStatus: ()=>{
-    const token = localStorage.getItem("accessToken");
-    const isAuth = !!(token && token.trim().length >0); //!! is used here to force the result into a boolean
+    // Check if user data exists in localStorage (user data is set after successful login)
+    const user = localStorage.getItem("user");
+    const isAuth = !!(user && user.trim().length > 0);
     set({ isAuthenticated: isAuth});
     return isAuth;
   },

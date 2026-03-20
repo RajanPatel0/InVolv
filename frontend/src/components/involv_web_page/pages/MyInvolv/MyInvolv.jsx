@@ -27,16 +27,17 @@ const MyInvolv = () => {
   const fetchUnreadCount = useNotificationStore((state) => state.fetchUnreadCount)
 
   useEffect(() => {
-    fetchIntents()
-    // Fetch unread count for notification badge
-    fetchUnreadCount()
-    
-    // Refresh unread count periodically
-    const interval = setInterval(() => {
-      fetchUnreadCount()
-    }, 30000) // Every 30 seconds
+    const user = localStorage.getItem("user");
+    if (user && user.trim().length > 0) {
+      fetchIntents();
+      fetchUnreadCount();
+      
+      const interval = setInterval(() => {
+        fetchUnreadCount();
+      }, 30000);
 
-    return () => clearInterval(interval)
+      return () => clearInterval(interval);
+    }
   }, [fetchUnreadCount])
 
   const fetchIntents = async () => {
