@@ -22,7 +22,7 @@ const userIntentSchema = new mongoose.Schema({
     intentType: {
         type: String,
         enum: ["RESERVE", "PRICE_DROP", "STOCK_CHANGE"],
-        reuired: true,
+        required: true,
     },
 
     meta: {
@@ -34,8 +34,13 @@ const userIntentSchema = new mongoose.Schema({
 
     status: {
         type: String,
-        enum: ["ACTIVE", "TRIGGERED", "CANCELLED"],
+        enum: ["ACTIVE", "TRIGGERED", "CANCELLED", "APPROVED", "REJECTED"],
         default: "ACTIVE",
+    },
+
+    rejectionReason: {
+        type: String,
+        default: null,
     },
 
     expiresAt: {    //adding expiry date only for RESERVE intent

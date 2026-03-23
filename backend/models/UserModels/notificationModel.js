@@ -23,7 +23,7 @@ const notificationSchema = new mongoose.Schema({
     // Notification Metadata
     notificationType: {
         type: String,
-        enum: ["INTENT_CREATED", "PRICE_DROP", "STOCK_CHANGE", "RESERVE_EXPIRY", "ALERT", "MANUAL"],
+        enum: ["INTENT_CREATED", "PRICE_DROP", "STOCK_CHANGE", "RESERVE_EXPIRY", "ALERT", "MANUAL", "RESERVATION_APPROVED", "RESERVATION_REJECTED"],
         default: "MANUAL",
     },
     
