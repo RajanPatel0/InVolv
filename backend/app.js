@@ -15,6 +15,7 @@ app.use(express.urlencoded({extended : true}));
 //Importing Routes:
 import vendorAuthRoutes from "./routes/vendorRoutes/authRoute.js";
 import vendorProductRoute from "./routes/vendorRoutes/productRoute.js";
+import vendorReservationRoute from "./routes/vendorRoutes/reservationRoute.js";
 
 import userAuthRoutes from "./routes/userRoutes/userAuthRoute.js";
 import userInvolvRoutes from "./routes/userRoutes/intentRoute.js";
@@ -31,6 +32,7 @@ app.use("/api/search", searchRoute);
 //Vendor Routes
 app.use("/api/vendor", vendorAuthRoutes);
 app.use("/api/store", vendorProductRoute);
+app.use("/api/vendor/reservations", vendorReservationRoute);
 
 
 export default app
