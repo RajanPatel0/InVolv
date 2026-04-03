@@ -197,7 +197,13 @@ const StoreDetails = () => {
 
             {selectedProduct && (
               <section id="insights">
-                <PriceInsights currentPrice={selectedProduct.price} />
+                <PriceInsights
+                  currentPrice={selectedProduct.price}
+                  productId={selectedProduct.id}
+                  vendorId={storeData.id}
+                  productName={selectedProduct.name}
+                  demandCount={selectedProduct.demandCount || 0}
+                />
               </section>
             )}
 
