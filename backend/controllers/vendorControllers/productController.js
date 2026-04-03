@@ -1,9 +1,11 @@
 import fs from "fs";
 import { handleUpload, handleDestroy } from "../../config/cloudinary.js";
 import Product from "../../models/StoreModels/productModel.js";
+import PriceHistory from "../../models/StoreModels/priceHistoryModel.js";
 
-import { invalidateSearchCache, invalidateTrendingCache } from "../../utils/cacheRedis/cacheinvalidation.js";
 import { processProductIntents } from "../../utils/Notifications/intentProcessor.js";
+import { invalidateSearchCache, invalidateTrendingCache } from "../../utils/cacheRedis/cacheInvalidation.js";
+
 
 export const addProduct = async(req, res)=>{
     try{
@@ -184,6 +186,14 @@ export const updateProduct = async(req, res)=>{
         }
 
         await product.save();
+
+        await PriceHistory.create({
+            productId: product._id, //._id used for saving and quering in db whereas .id may be used for sending response to frontend or any logging, display or any internal use but not for db query
+            vendorId: req.vendor._id,
+            price: product.price,
+            stock: product.stock,
+        });
+
         console.log("About to process product intents...");
         await processProductIntents(product);  //check for any user intents to be triggered on update
         console.log("Product intents processed successfully");
