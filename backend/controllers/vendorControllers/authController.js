@@ -161,8 +161,8 @@ export const loginVendor = async(req, res)=>{
             });
         }
 
-        const accessToken = generateAccessToken(vendor._id);   //generating access token
-        const refreshToken = generateRefreshToken(vendor._id); //generating refresh token
+        const accessToken = generateAccessToken(vendor);   //generating access token
+        const refreshToken = generateRefreshToken(vendor); //generating refresh token
 
         vendor.refreshToken = refreshToken;  //storing refresh token in db
         await vendor.save({ validateBeforeSave: false });
@@ -274,27 +274,70 @@ export const getVendor = async (req, res) => {
 
 export const refreshAccessToken = async(req, res)=>{
     try{
-        const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;    //taking refresh token from httpOnly cookie or from request body
+        console.log("[REFRESH TOKEN] Request received");
 
-        if(!refreshToken){  //if no refresh token provided
-            return res.status(400).json({message: "Refresh Token Missing"});
+        const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
+
+        if(!refreshToken){
+            console.error("[REFRESH TOKEN] No refresh token found");
+            return res.status(401).json({
+                success: false,
+                message: "Refresh Token Missing"
+            });
         }
 
-        const decode = verifyRefreshToken(refreshToken) //if refresh token found verify it
+        const decode = verifyRefreshToken(refreshToken); //if refresh token found verify it
 
-        const vendor = await Vendor.findById(decode._id).select("-password");   //if valid refresh token get vendor details from it
+        const vendor = await Vendor.findById(decode.id).select("-password");
 
-        if(!vendor){    //if no vendor found for id in refresh token
-            return res.status(404).json({message: "Vendor Not Found"});
+        if(!vendor){
+            console.error("[REFRESH TOKEN] Vendor not found");
+            return res.status(401).json({
+                success: false,
+                message: "Vendor Not Found"
+            });
         }
 
-        const newAccessToken = generateAccessToken(vendor); //for vendor found generate new access token
+        // Generate new tokens
+        const newAccessToken = generateAccessToken(vendor);
+        const newRefreshToken = generateRefreshToken(vendor);
 
-        res.status(200).json({  //& return it in response as of access token
-            status: "success",
-            accessToken: newAccessToken
-        });
+        // Rotate refresh token in DB
+        vendor.refreshToken = newRefreshToken;
+        await vendor.save();
+
+        // Define cookie options
+        const isProd = process.env.NODE_ENV === "production";
+        const accessOptions = {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'None' : 'Lax',
+            maxAge: 15 * 60 * 1000, // 15 minutes
+        };
+        const refreshOptions = {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'None' : 'Lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        };
+
+        console.log("[REFRESH TOKEN] Tokens refreshed successfully");
+
+        return res
+            .status(200)
+            .cookie("accessToken", newAccessToken, accessOptions)
+            .cookie("refreshToken", newRefreshToken, refreshOptions)
+            .json({
+                success: true,
+                message: "Access token refreshed successfully",
+                accessToken: newAccessToken,
+                timestamp: new Date().toISOString()
+            });
     }catch (err){
-        res.status(401).json({message: err.message});
+        console.error("[REFRESH TOKEN] Error during token refresh:", err);
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorized: " + err.message
+        });
     }
 };

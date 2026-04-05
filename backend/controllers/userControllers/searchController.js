@@ -2,6 +2,7 @@ import Vendor from "../../models/StoreModels/vendorModel.js";
 import SearchLog from "../../models/StoreModels/searchLog.js";
 import redis from "../../config/redis.js";
 import Product from "../../models/StoreModels/productModel.js";
+import { trackSearch, trackProductClick } from "../../utils/realTimeAnalytics.js";
 
 export const searchProductNearby = async (req, res) => {
   try {
@@ -105,6 +106,7 @@ export const searchProductNearby = async (req, res) => {
     const finalResult = products
       .map(p => ({
         productId: p._id.toString(), // ADD PRODUCT ID
+        vendorId: p.vendor._id.toString(),
         productImage: p.image,
         productName: p.pdtName,
         productCategory: p.category,
@@ -133,6 +135,38 @@ export const searchProductNearby = async (req, res) => {
       count: finalResult.length,
       data: finalResult
     });
+
+
+    // ANALYTICS TRACKING (NON-BLOCKING) - Works for all users
+    (async () => {
+      try {
+        // Get user ID: logged-in or anonymous
+        let userId = req.user?._id;
+        if (!userId) {
+          // Generate anonymous ID from request (stable per session)
+          userId = req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+                   req.socket?.remoteAddress ||
+                   req.connection?.remoteAddress ||
+                   'anonymous';
+          // Optional: hash it for privacy
+          // userId = crypto.createHash('md5').update(userId).digest('hex');
+        }
+
+        //Use the actual vendor ID from each product's location._id
+        const uniqueVendorIds = new Set();
+        finalResult.forEach(product => {
+          if (product.vendorId) {  // product.vendorId comes from p.vendor._id in the aggregation
+            uniqueVendorIds.add(product.vendorId);
+          }
+        });
+
+        for (const vendorId of uniqueVendorIds) {
+          await trackSearch(vendorId.toString(), userId.toString(), productName);
+        }
+      } catch (err) {
+        console.error(`[Analytics] Error in search tracking:`, err.message);
+      }
+    })();
 
     // SEARCH LOG (NON-BLOCKING)
     SearchLog.create({
@@ -269,6 +303,30 @@ export const getStoreDetailsWithAlternatives = async (req, res) => {
         nearbyAlternatives: enrichedNearbyStores.filter(s => s.product !== null)
       }
     });
+
+        
+    // ANALYTICS TRACKING (NON-BLOCKING) - Product clicks
+    (async () => {
+      try {
+        let userId = req.user?._id;
+        if (!userId) {
+          userId = req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+                   req.socket?.remoteAddress ||
+                   'anonymous';
+        }
+
+        for (const product of storeProducts) {
+          await trackProductClick(
+            mainStore._id.toString(),
+            userId.toString(),
+            product._id.toString(),
+            product.pdtName
+          );
+        }
+      } catch (err) {
+        console.error(`[Analytics] Error tracking product click:`, err.message);
+      }
+    })();
 
   } catch (err) {
     console.error("Store Details Error:", err);

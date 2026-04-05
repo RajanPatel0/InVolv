@@ -1,11 +1,22 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, ShoppingCart, UploadCloud, Settings, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, UploadCloud, ChartNoAxesCombined, ClipboardClock , ChevronLeft, ChevronRight } from "lucide-react";
+import Inventory from "../Pages/Inventory";
 
 const navItems = [
   {
-    name: "Dashboard",
+    name: "Dashboard Analytics",
     to: "/vendor/dashboard",
     icon: <LayoutDashboard size={18} />,
+  },
+  { 
+    name: "Inventory Analytics",
+    to: "/vendor/inventory",
+    icon: <ChartNoAxesCombined size={18} />,
+  },
+  {
+    name: "Reservations",
+    to: "/vendor/reservations",
+    icon: <ClipboardClock size={18} />,
   },
   {
     name: "Upload",
@@ -16,11 +27,6 @@ const navItems = [
     name: "Products",
     to: "/vendor/products",
     icon: <ShoppingCart size={18} />,
-  },
-  { 
-    name: "Settings",
-    to: "/vendor/settings",
-    icon: <Settings size={18} />,
   },
 
 ];

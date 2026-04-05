@@ -3,6 +3,7 @@ import Notification from "../../models/UserModels/notificationModel.js";
 import Product from "../../models/StoreModels/productModel.js";
 import Vendor from "../../models/StoreModels/vendorModel.js";
 import { sendIntentCreatedNotification } from "../../utils/fcmService.js";
+import { trackAlertCreated, trackReservation } from "../../utils/realTimeAnalytics.js";
 
 export const createIntent = async(req, res)=>{
     try{
@@ -78,6 +79,23 @@ export const createIntent = async(req, res)=>{
             console.error("FCM notification error (non-blocking):", fcmError);
             // Don't fail the intent creation if FCM fails
         }
+
+        // ANALYTICS TRACKING (NON-BLOCKING)
+        (async () => {
+            try {
+                const productName = product.pdtName || "Product";
+
+                if (intentType === "RESERVE") {
+                    // Track reservation
+                    await trackReservation(storeId.toString(), userId.toString(), productId.toString(), productName);
+                } else if (["PRICE_DROP", "STOCK_CHANGE"].includes(intentType)) {
+                    // Track alert creation
+                    await trackAlertCreated(storeId.toString(), userId.toString(), intentType);
+                }
+            } catch (err) {
+                console.error(`[Analytics] Error tracking intent:`, err.message);
+            }
+        })();
 
         res.status(201).json({
             success: true,
