@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://localhost:5000/api",
+    baseURL: import.meta.env.VITE_API_BASE_URL + "/api",
     withCredentials: true,  // Automatically sends and receives cookies
     headers: {
         "Content-Type": "application/json"
@@ -36,7 +36,7 @@ api.interceptors.response.use(
         if (errorStatus === 401 && !originalRequest._retry) {
             // If refresh is already in progress, queue this request
             if (isRefreshing) {
-                
+
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
                 })
@@ -55,9 +55,19 @@ api.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                // Call refresh token endpoint
+                // Detect if this is a vendor or user request
+                const isVendor = localStorage.getItem("vendor") !== null;
+                const baseURL = import.meta.env.VITE_API_BASE_URL;
+                const refreshEndpoint = isVendor
+                    ? `${baseURL}/api/vendor/refresh-token`
+                    : `${baseURL}/api/user/refresh-token`;
+                const redirectUrl = isVendor ? "/vendorSignIn" : "/userSignIn";
+
+                console.log(`[REFRESH] Using endpoint: ${refreshEndpoint}`);
+
+                // Call appropriate refresh token endpoint
                 const refreshResponse = await axios.post(
-                    "http://localhost:5000/api/user/refresh-token",
+                    refreshEndpoint,
                     {},
                     {
                         withCredentials: true, // Send cookies (refreshToken)
@@ -82,20 +92,26 @@ api.interceptors.response.use(
                 return api(originalRequest);
 
             } catch (refreshError) {
-                // Token refresh failed - clear user data and redirect to login
+                // Token refresh failed - clear user/vendor data and redirect to login
                 console.error("[REFRESH] Token refresh failed:", refreshError.message);
                 console.error("[REFRESH] Error details:", refreshError);
 
                 // Process queued requests with error
                 processQueue(refreshError, null);
 
-                // Clear local user data
-                localStorage.removeItem("user");
-                localStorage.removeItem("rememberedUser");
+                // Determine if vendor or user context, and clear accordingly
+                const isVendor = localStorage.getItem("vendor") !== null;
 
-                // Show login page
-                console.log("[LOGOUT] Redirecting to Login");
-                window.location.href = "/userSignIn";
+                if (isVendor) {
+                    localStorage.removeItem("vendor");
+                    console.log("[LOGOUT] Clearing vendor data, redirecting to vendor login");
+                    window.location.href = "/vendorSignIn";
+                } else {
+                    localStorage.removeItem("user");
+                    localStorage.removeItem("rememberedUser");
+                    console.log("[LOGOUT] Clearing user data, redirecting to user login");
+                    window.location.href = "/userSignIn";
+                }
 
                 return Promise.reject(refreshError);
 

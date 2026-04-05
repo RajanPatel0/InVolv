@@ -22,8 +22,9 @@ import MyInvolv from "./components/involv_web_page/pages/MyInvolv/MyInvolv";
 
 import Dashboard from "./vendor/Pages/Dashboard";
 import Upload from "./vendor/Pages/Upload";
-import Setting from "./vendor/Pages/Setting";
+import Inventory from "./vendor/Pages/Inventory.jsx";
 import Products from "./vendor/Pages/product/Products";
+import Reservations from "./vendor/Pages/Reservations";
 
 import VendorProfile from "./vendor/Pages/VendorProfile";
 import Sidebar from "./vendor/components/SideBar";
@@ -102,8 +103,9 @@ const App = () => {
 
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="upload" element={<Upload />} />
-          <Route path="settings" element={<Setting />} />
+          <Route path="inventory" element={<Inventory />} />
           <Route path="products" element={<Products />} />
+          <Route path="reservations" element={<Reservations />} />
         </Route>
 
         <Route path="*" element={<PageNotFound />} />
