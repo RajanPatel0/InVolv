@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { vendorRoutes } from "./VendorRoutesConfig";
-import Sidebar from "../components/SideBar";
+import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import { useEffect, useState } from "react";
 
