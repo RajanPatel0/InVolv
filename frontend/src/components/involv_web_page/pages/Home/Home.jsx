@@ -15,7 +15,7 @@ import { useSearchStore } from "../../../../api/stores/searchStore";
 import HowItWorks from "../../components/homesections/HowItWorks";
 import WhyInVolvExists from "../../components/homesections/WhyInVolvExists";
 import TrustAndCTA from "../../components/homesections/TrustAndCTA";
-import NearbyAlternatives from "../../components/homesections/NearByAlternatives";
+import NearbyAlternatives from "../../components/homesections/NearbyAlternatives";
 import AreaInsights from "../../components/homesections/AreaInsights";
 import SearchFallback from "../../components/homesections/SearchFallback";
 import SelectedStoreInsight from "../../components/homesections/SelectedStoreInsight";

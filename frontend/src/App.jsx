@@ -29,7 +29,7 @@ import Reservations from "./vendor/Pages/Reservations";
 import VendorProfile from "./vendor/Pages/VendorProfile";
 // import Sidebar from "./vendor/components/SideBar";
 // import Topbar from "./vendor/components/Topbar";
-import VendorLayout from "./vendor/layout/vendorLayout";
+import VendorLayout from "./vendor/layout/VendorLayout";
 
 const App = () => {
 
