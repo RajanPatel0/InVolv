@@ -27,8 +27,8 @@ import Products from "./vendor/Pages/product/Products";
 import Reservations from "./vendor/Pages/Reservations";
 
 import VendorProfile from "./vendor/Pages/VendorProfile";
-import Sidebar from "./vendor/components/SideBar";
-import Topbar from "./vendor/components/Topbar";
+// import Sidebar from "./vendor/components/SideBar";
+// import Topbar from "./vendor/components/Topbar";
 import VendorLayout from "./vendor/layout/vendorLayout";
 
 const App = () => {
