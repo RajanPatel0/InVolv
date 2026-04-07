@@ -31,8 +31,8 @@ import VendorLayout from "./vendor/layout/VendorLayout";
 
 // OAuth Success Pages
 import UserOAuthSuccess from "./pages/Auth/UserOAuthSuccess";
-import VendorOAuthSuccess from "./vendor/pages/VendorOAuthSuccess";
-import VendorCompleteProfile from "./vendor/pages/VendorCompleteProfile";
+import VendorOAuthSuccess from "./vendor/Pages/VendorOAuthSuccess";
+import VendorCompleteProfile from "./vendor/Pages/VendorCompleteProfile";
 
 const App = () => {
 
