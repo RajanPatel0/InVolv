@@ -3,17 +3,24 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import passport from "passport";
-import "./config/passport.js"; // Import passport configuration
+import "./config/passport.js";
 
 const app = express();
 
-app.use(cookieParser());
+//Trust Render's proxy so Express knows the request is HTTPS: Without this, Express thinks it's HTTP even on Render, and refuses to set secure cookies
+app.set('trust proxy', 1);
 
+// credentials:true allows cookies sent cross-origin (frontend <--> backend)
+// methods + allowedHeaders needed for Firefox/Brave preflight OPTIONS requests (cuzz chrome is lenient and doesn't require preflight for same headers) - without this, login/logout is'not working in Firefox/Brave
 const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
 app.use(cors({
   origin: allowedOrigin,
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+app.use(cookieParser());
 
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
@@ -24,6 +31,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',   //fix that allows cookie to survive Google's OAuth redirect on Firefox/Brave
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
