@@ -26,7 +26,6 @@ passport.use('google-user', new GoogleStrategy(
           googleId: profile.id,
           isGoogleAccount: true,
           isVerified: true, // Auto-verify for OAuth users
-          phone: null, // Can be updated later
           refreshTokens: [], // Initialize empty array
         });
         await user.save();
