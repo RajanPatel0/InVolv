@@ -45,9 +45,9 @@ export const searchNearbyProducts = async ({
 };
 
 // Get store details with similar stores
-export const getStoreDetails = async ({ storeName, lat, lng, productName }) => {
+export const getStoreDetails = async ({ storeId, lat, lng, productName }) => {
   const res = await api.post("/search/store-details", {
-    storeName,
+    storeId,
     lat,
     lng,
     productName,

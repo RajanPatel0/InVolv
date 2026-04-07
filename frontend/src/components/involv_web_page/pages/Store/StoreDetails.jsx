@@ -69,7 +69,7 @@ const StoreDetails = () => {
       try {
         setLoading(true);
         const response = await getStoreDetails({
-          storeName: selectedStore.name,
+          storeId: selectedStore.vendorId,
           lat: userLocation.lat,
           lng: userLocation.lng,
           productName: query,

@@ -32,6 +32,7 @@ export default function ReserveCard({ intent, onCancel, index = 0 }) {
     const storeObject = {
       _id: intent.storeId._id,
       id: intent.storeId._id,
+      vendorId: intent.storeId._id,
       name: intent.storeId.storeName,
       productId: intent.productId._id,
       latitude: intent.storeId.location?.coordinates?.[1] || 0,
@@ -45,9 +46,9 @@ export default function ReserveCard({ intent, onCancel, index = 0 }) {
       productCategory: intent.productId.category || "general"
     }
   };
-    // First, set the selected store in Zustand 
+    // First, set the selected store in Zustand
     useSearchStore.getState().selectStore(storeObject);
-    
+
     // Then navigate
     navigate(`/store-details`, {
       state: {
