@@ -8,7 +8,7 @@ const CategoryAnalysis = ({ data }) => {
 
       {/* 🔹 CATEGORY CARDS */}
       <div className="grid md:grid-cols-3 gap-4">
-        {data.map((cat, i) => (
+        {(data || []).map((cat, i) => (
           <div
             key={i}
             className="p-4 bg-[#EEF3FF] rounded-xl hover:shadow-md transition"
@@ -45,8 +45,8 @@ const CategoryAnalysis = ({ data }) => {
           </thead>
 
           <tbody>
-            {data.flatMap((cat) =>
-              cat.products.map((p, i) => (
+            {(data || []).flatMap((cat) =>
+              (cat.products || []).map((p, i) => (
                 <tr key={i} className="border-b hover:bg-[#F5F7FB]">
                   <td className="py-3 font-medium text-[#000075]">
                     {p.pdtName}

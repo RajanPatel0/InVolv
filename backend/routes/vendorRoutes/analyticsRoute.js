@@ -205,7 +205,19 @@ router.get("/inventory/recommendations", authMiddleware, async (req, res) => {
   try {
     const vendorId = req.vendor._id.toString();
 
-    const recommendations = await getInventoryRecommendations(vendorId);
+    const recommendations = await getInventoryRecommendations(vendorId) || {
+      restock: [],
+      reduce: [],
+      optimal: [],
+      atRisk: [],
+      summary: {
+        totalProducts: 0,
+        needsRestock: 0,
+        shouldReduce: 0,
+        atStockOutRisk: 0,
+      },
+      insights: [],
+    };
 
     res.json({
       success: true,

@@ -1,19 +1,21 @@
-import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
+import createTransporter from "../emailTransporter.js";
 import otpVerificationTemplate from "../Templates/otpVerificationtemplate.js";
 
 export const sendOtpEmail= async(vendor)=>{
     try{
-        const transporter = nodemailer.createTransport({    //configuring nodemailer service
-            host: "smtp.gmail.com",
-            port : 587,
-            secure: false,
-            requireTLS: true,
-            auth:{
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            },
-        });
+        // const transporter = nodemailer.createTransport({    //configuring nodemailer service
+        //     host: "smtp.gmail.com",
+        //     port : 587,
+        //     secure: false,
+        //     requireTLS: true,
+        //     auth:{
+        //         user: process.env.EMAIL_USER,
+        //         pass: process.env.EMAIL_PASS,
+        //     },
+        // });
+
+        const transporter = await createTransporter(); //using OAuth2.0 transporter for production
 
         const otp = Math.floor(1000 + Math.random()*9000).toString(); //generating 4 digit otp
 

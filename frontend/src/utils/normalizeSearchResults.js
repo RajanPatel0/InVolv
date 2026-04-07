@@ -1,6 +1,7 @@
 export const normalizeSearchResults = (data) => {
   return data.map((item, index) => ({
-    id: `${item.storeName}-${item.productName}-${index}`,
+    id: `${item.vendorId}-${item.productId}-${index}`,
+    vendorId: item.vendorId,
     productId: item.productId, // ADD PRODUCT ID HERE
     image: item.productImage ? item.productImage[0] : null,
     name: item.storeName,

@@ -10,11 +10,11 @@ const Recommendations = ({ data }) => {
 
       {/* 🔹 SUMMARY CARDS */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Total", value: data.summary.totalProducts },
-          { label: "Restock", value: data.summary.needsRestock },
-          { label: "Reduce", value: data.summary.shouldReduce },
-          { label: "At Risk", value: data.summary.atStockOutRisk },
+        {[  // Using optional chaining and default values to prevent errors if data is missing
+          { label: "Total", value: data?.summary?.totalProducts || 0 },
+          { label: "Restock", value: data?.summary?.needsRestock || 0 },
+          { label: "Reduce", value: data?.summary?.shouldReduce || 0 },
+          { label: "At Risk", value: data?.summary?.atStockOutRisk || 0 },
         ].map((item, i) => (
           <div
             key={i}
@@ -35,7 +35,7 @@ const Recommendations = ({ data }) => {
         </h3>
 
         <div className="grid md:grid-cols-2 gap-4">
-          {data.reduce.map((p, i) => (
+          {(data?.reduce || []).map((p, i) => (
             <div
               key={i}
               className="p-4 bg-red-50 rounded-xl border border-red-100 hover:shadow-md transition"
@@ -62,7 +62,7 @@ const Recommendations = ({ data }) => {
       </div>
 
       {/* 🔸 EMPTY STATES */}
-      {data.reduce.length === 0 && (
+      {(data?.reduce?.length || 0) === 0 && (
         <div className="text-center text-gray-400 py-6">
           <Package size={28} className="mx-auto mb-2" />
           No recommendations

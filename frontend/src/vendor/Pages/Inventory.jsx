@@ -31,8 +31,19 @@ const Inventory = () => {
           }),
         ]);
 
-        setData({
-          recommendations: recommendations?.data || { restock: [], reduce: [], optimal: [], atRisk: [], summary: {} },
+        setData({   // Set data with fallbacks for any failed requests
+          recommendations: recommendations?.data || {
+            restock: [],
+            reduce: [],
+            optimal: [],
+            atRisk: [],
+            summary: {
+              totalProducts: 0,
+              needsRestock: 0,
+              shouldReduce: 0,
+              atStockOutRisk: 0,
+            },
+          },
           category: category?.data || [],
           stockOut: stockOut?.data || [],
         });

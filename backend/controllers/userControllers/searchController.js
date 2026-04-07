@@ -198,18 +198,18 @@ export const searchProductNearby = async (req, res) => {
 
 export const getStoreDetailsWithAlternatives = async (req, res) => {
   try {
-    const { storeName, lat, lng, productName } = req.body;
+    const { storeId, lat, lng, productName } = req.body;
 
     // VALIDATION
-    if (!storeName || !lat || !lng) {
+    if (!storeId || !lat || !lng) {
       return res.status(400).json({
         success: false,
-        message: "Store name and location are required"
+        message: "Store and location are required"
       });
     }
 
     // GET MAIN STORE
-    const mainStore = await Vendor.findOne({ storeName });
+    const mainStore = await Vendor.findById(storeId);
     if (!mainStore) {
       return res.status(404).json({
         success: false,

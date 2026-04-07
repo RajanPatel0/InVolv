@@ -27,9 +27,12 @@ import Products from "./vendor/Pages/product/Products";
 import Reservations from "./vendor/Pages/Reservations";
 
 import VendorProfile from "./vendor/Pages/VendorProfile";
-// import Sidebar from "./vendor/components/SideBar";
-// import Topbar from "./vendor/components/Topbar";
 import VendorLayout from "./vendor/layout/VendorLayout";
+
+// OAuth Success Pages
+import UserOAuthSuccess from "./pages/Auth/UserOAuthSuccess";
+import VendorOAuthSuccess from "./vendor/pages/VendorOAuthSuccess";
+import VendorCompleteProfile from "./vendor/pages/VendorCompleteProfile";
 
 const App = () => {
 
@@ -80,14 +83,18 @@ const App = () => {
         <Route path="/userSignUp" element={<UserSignUp />} />
         <Route path="/userSignIn" element={<SignIn />} />
         <Route path="/store-details" element={<StoreDetails />} />
-        <Route 
-          path="/myinvolv" 
+        <Route
+          path="/myinvolv"
           element={
           <ProtectedRoute>
             <MyInvolv/>
           </ProtectedRoute>
         } />
-        
+
+        {/* OAuth Success Routes */}
+        <Route path="/auth/oauth-success" element={<UserOAuthSuccess />} />
+        <Route path="/vendor/auth/oauth-success" element={<VendorOAuthSuccess />} />
+        <Route path="/vendor/complete-profile" element={<VendorCompleteProfile />} />
 
         <Route path="/verify-otp" element={<VerifyOtp /> } />
 

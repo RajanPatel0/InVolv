@@ -29,7 +29,8 @@ export const registerVendor= async(req,res)=>{
         await newVendor.save();
 
         const otpResult = await sendOtpEmail(newVendor);    //otp sending model after user creation
-        if(!otpResult.success){
+        if(!otpResult.success){ // If OTP sending fails, delete the created vendor and return error
+            await Vendor.findByIdAndDelete(newVendor._id);   // rollback if otp sending fails
             return res.status(500).json({
                 success: false,
                 message: "User Created but OTP sending failed"
@@ -338,6 +339,145 @@ export const refreshAccessToken = async(req, res)=>{
         return res.status(401).json({
             success: false,
             message: "Unauthorized: " + err.message
+        });
+    }
+};
+
+// Google OAuth Callback Handler for Vendor
+export const googleAuthCallback = async (req, res) => {
+    try {
+        let vendor = req.user;
+
+        if (!vendor || !vendor._id) {
+            return res.status(401).json({
+                success: false,
+                message: "Authentication failed"
+            });
+        }
+
+        // Fetch fresh vendor from database to ensure all fields are present
+        vendor = await Vendor.findById(vendor._id);
+
+        if (!vendor) {
+            return res.status(404).json({
+                success: false,
+                message: "Vendor not found"
+            });
+        }
+
+        // Generate tokens
+        const accessToken = generateAccessToken(vendor);
+        const refreshToken = generateRefreshToken(vendor);
+
+        // Store refresh token
+        vendor.refreshToken = refreshToken;
+        await vendor.save();
+
+        const loggedInVendor = await Vendor.findById(vendor._id).select(
+            "-password -refreshToken -otp -otpExpiresAt"
+        );
+
+        const isProd = process.env.NODE_ENV === "production";
+        const accessOptions = {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'None' : 'Lax',
+            maxAge: 15 * 60 * 1000,
+        };
+        const refreshOptions = {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'None' : 'Lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        };
+
+        // If profile not complete, redirect to completion page
+        if (!vendor.isProfileComplete) {
+            const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+            return res
+                .cookie("accessToken", accessToken, accessOptions)
+                .cookie("refreshToken", refreshToken, refreshOptions)
+                .redirect(`${frontendUrl}/vendor/complete-profile?token=${accessToken}&vendorId=${vendor._id}`);
+        }
+
+        // If profile complete, redirect to dashboard
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        return res
+            .cookie("accessToken", accessToken, accessOptions)
+            .cookie("refreshToken", refreshToken, refreshOptions)
+            .redirect(`${frontendUrl}/vendor/auth/oauth-success?token=${accessToken}&vendorId=${vendor._id}`);
+
+    } catch (error) {
+        console.error("Error in Google OAuth callback:", error);
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        return res.redirect(`${frontendUrl}/vendor/auth/oauth-error?message=${error.message}`);
+    }
+};
+
+// Complete Vendor Profile after Google OAuth
+export const completeVendorProfile = async (req, res) => {
+    try {
+        const vendorId = req.vendor?._id;
+        const { storeName, phone, address, category, location } = req.body;
+
+        if (!vendorId) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized: Vendor ID not found"
+            });
+        }
+
+        // Validate required fields
+        if (!storeName || !phone || !address || !category || !location) {
+            return res.status(400).json({
+                success: false,
+                message: "All fields are required: storeName, phone, address, category, location"
+            });
+        }
+
+        // Validate location format
+        if (!location.type || !Array.isArray(location.coordinates)) {
+            return res.status(400).json({
+                success: false,
+                message: "Location must have type and coordinates [longitude, latitude]"
+            });
+        }
+
+        const vendor = await Vendor.findById(vendorId);
+
+        if (!vendor) {
+            return res.status(404).json({
+                success: false,
+                message: "Vendor not found"
+            });
+        }
+
+        // Update vendor profile
+        vendor.storeName = storeName;
+        vendor.phone = phone;
+        vendor.address = address;
+        vendor.category = category;
+        vendor.location = location;
+        vendor.isProfileComplete = true;
+
+        await vendor.save();
+
+        const updatedVendor = await Vendor.findById(vendorId).select(
+            "-password -refreshToken -otp -otpExpiresAt"
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Vendor profile completed successfully",
+            vendor: updatedVendor
+        });
+
+    } catch (error) {
+        console.error("Error completing vendor profile:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error completing vendor profile",
+            error: error.message
         });
     }
 };

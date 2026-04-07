@@ -31,7 +31,8 @@ export const registerUser = async (req, res)=> {
         await newUser.save();
 
         const otpResult = await sendUserOtpEmail(newUser);    //otp sending model after user creation
-            if(!otpResult.success){
+            if(!otpResult.success){ // If OTP sending fails, delete the created user and return error
+                await User.findByIdAndDelete(newUser._id);   // rollback
                 return res.status(500).json({
                     success: false,
                     message: "User Created but OTP sending failed"
@@ -98,6 +99,7 @@ export const verifyUserOtp = async(req, res)=>{
             });
         };
 
+        user.isVerified = true; // Mark user as verified
         user.otp = null;
         user.otpExpiresAt = null;
 
@@ -134,6 +136,13 @@ export const loginUser = async(req, res)=>{
                 message: "Email or Password is incorrect. Please register.",
             });
         };
+
+        if(!user.isVerified){
+            return res.status(403).json({
+                success: false,
+                message: "Your email is not verified. Please verify before logging in.",
+            });
+        }
 
         const isPasswordMatch = await bcrypt.compare(password, user.password);
         if(!isPasswordMatch){
@@ -353,5 +362,75 @@ export const logoutUser = async (req, res) => {
             success: false,
             message: "Error logging out"
         });
+    }
+};
+
+// Google OAuth Callback Handler
+export const googleAuthCallback = async (req, res) => {
+    try {
+        let user = req.user;
+
+        if (!user || !user._id) {
+            return res.status(401).json({
+                success: false,
+                message: "Authentication failed"
+            });
+        }
+
+        // Fetch fresh user from database to ensure all fields are present
+        user = await User.findById(user._id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        // Ensure refreshTokens array is initialized
+        if (!user.refreshTokens) {
+            user.refreshTokens = [];
+        }
+
+        // Generate tokens
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+
+        // Store refresh token
+        user.refreshTokens.push(refreshToken);
+        await user.save();
+
+        const loggedInUser = await User.findById(user._id).select(
+            "-password -refreshTokens -otp -otpExpiresAt"
+        );
+
+        const accessTokenMaxAge = parseExpiryToMs(process.env.ACCESS_TOKEN_EXPIRY);
+        const refreshTokenMaxAge = parseExpiryToMs(process.env.REFRESH_TOKEN_EXPIRY);
+
+        const isProd = process.env.NODE_ENV === "production";
+        const accessOptions = {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'None' : 'Lax',
+            maxAge: accessTokenMaxAge,
+        };
+        const refreshOptions = {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'None' : 'Lax',
+            maxAge: refreshTokenMaxAge,
+        };
+
+        // Redirect to frontend with tokens
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        return res
+            .cookie("accessToken", accessToken, accessOptions)
+            .cookie("refreshToken", refreshToken, refreshOptions)
+            .redirect(`${frontendUrl}/auth/oauth-success?token=${accessToken}&userId=${user._id}`);
+
+    } catch (error) {
+        console.error("Error in Google OAuth callback:", error);
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        return res.redirect(`${frontendUrl}/auth/oauth-error?message=${error.message}`);
     }
 };
